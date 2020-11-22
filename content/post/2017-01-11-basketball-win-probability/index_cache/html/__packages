@@ -1,0 +1,16 @@
+base
+knitr
+animation
+tidyverse
+ggplot2
+tibble
+tidyr
+readr
+purrr
+dplyr
+stringr
+forcats
+xml2
+rvest
+gganimate
+here
