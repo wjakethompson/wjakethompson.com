@@ -2,7 +2,7 @@
 title: "Empirical methods for evaluating maps: Illustrations and results"
 draft: false
 authors:
-  - W. Jake Thompson
+  - wjake
   - Brooke Nash
 event: National Council on Measurement in Education Annual Meeting
 location: Toronto, Canada

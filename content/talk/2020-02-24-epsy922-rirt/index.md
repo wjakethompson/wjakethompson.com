@@ -1,7 +1,7 @@
 ---
 title: Using R for Item Response Theory
 authors:
-  - W. Jake Thompson
+  - wjake
 draft: false
 event: 'EPSY 922: Item Response Theory'
 location: Department of Educational Psychology, University of Kansas, Lawrence, KS

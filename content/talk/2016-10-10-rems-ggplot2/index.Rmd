@@ -1,7 +1,7 @@
 ---
 title: Data visualization using ggplot2
 authors:
-  - W. Jake Thompson
+  - wjake
 draft: false
 event: 'Research, Evaluation, Measurement, and Statistics graduate seminar'
 location: University of Kansas, Lawrence, KS

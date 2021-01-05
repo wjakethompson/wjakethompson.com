@@ -2,7 +2,7 @@
 title: Using R and the tidyverse for Data Science
 subtitle: 'A Summer Statistical Institute workshop'
 authors:
-  - W. Jake Thompson
+  - wjake
 draft: false
 event: 'Summer Statistical Institute 2019'
 location: University of Kansas, Lawrence, KS

@@ -2,7 +2,7 @@
 title: Statistical analysis in sports
 draft: false
 authors: 
-  - W. Jake Thompson
+  - wjake
 event: 'Research, Evaluation, Measurement, and Statistics graduate seminar'
 location: University of Kansas, Lawrence, KS
 abstract: ""
