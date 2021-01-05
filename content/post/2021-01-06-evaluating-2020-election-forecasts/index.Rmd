@@ -1,0 +1,164 @@
+---
+title: Evaluating 2020 Election Forecasts
+author: Jake Thompson
+date: '2021-01-06'
+categories:
+  - rstats
+tags:
+  - politics
+slug: evaluating-2020-election-forecasts
+authors: [W. Jake Thompson]
+summary: 'A summary...'
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+---
+
+```{r setup, include = FALSE, message = FALSE}
+library(tidyverse)
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  comment = "#>",
+  echo = TRUE,
+  cache = FALSE,
+  fig.align = "center",
+  fig.width = 8,
+  fig.retina = 2,
+  out.width = "100%"
+)
+```
+
+After two very long months, the 2020 presidential election finally comes to a close today as congress is expected to certify the electoral college results. To celebrate, I thought I'd look back at the many election forecasts we had in 2020 to see which forecast performed the best, given the results we now have. To do this, we'll look at two outcomes: prediction accuracy and model accuracy. But first, the data!
+
+## The Forecasts
+
+There were so. many. forecasts. I tried my best to gather as many as I could prior to election day. Ultimately, here are the forecasts I was able to pull probabilities of each candidate winning from for each state.
+
+* [Decision Desk HQ](https://forecast.decisiondeskhq.com/president)
+* [Drord Mapmaking](https://splittingamerica.neocities.org/new.html)
+* [Economist](https://projects.economist.com/us-2020-forecast/president)
+* [Electoral Polls](https://electoralpolls.com/)
+* [FiveThirtyEight](https://projects.fivethirtyeight.com/2020-election-forecast/)
+* [JHK Forecasts](https://projects.jhkforecasts.com/presidential-forecast/)
+* [Lean Tossup](https://leantossup.ca/us-presidency/)
+* [New Statesman](https://www.newstatesman.com/international/2020/11/us-2020-presidential-election-forecast-model-will-donald-trump-or-joe-biden)
+* [Plural Vote](http://www.pluralvote.com/article/2020-forecast/)
+* [PredictIt](https://www.predictit.org/markets/13/Prez-Election)
+* [Princeton Election Consortium](https://election.princeton.edu/for-fellow-geeks/)
+* [Progress Campaign](https://www.ourprogress.org/forecast)
+* [Race to the White House](https://www.racetothewh.com/president)
+* [Reed Forecasts](https://reedforecasts.com/)
+* [The Cycle](https://thecycle.news/news/september-2020-election-update)
+
+I also pulled the 2016 map to use as a baseline measure. All of the data is available in a Google sheet [here](https://docs.google.com/spreadsheets/d/1CpMPWCHLfwByucZz9fzIH8ivHnIcfmrYUjKQ1tFTbFU/). In the Google sheet, the probabilities indicate the probability that Joe Biden would win each state.
+
+A few of the forecasts (including notably, the Economist) did not forecast the congressional districts in Nebraska and Maine separately from the whole state. Thus, for those forecasts, I used the statewide probability for each of the individual congressional districts as well, as that was the probability those forecasts assigned to each candidate for winning *all* electoral college votes from the state.
+
+## Prediction Accuracy
+
+We're defining prediction accuracy as how close the estimated probabilities were to the observed outcome. We can assess this through three measures: log-loss, Brier Score, and a weighted Brier Score. All of these measures evaluate how close the probability was to the observed event. The log-loss is defined as
+
+$$\begin{equation}
+  LogLoss=-\frac{1}{P}\sum_{i=1}^Py_i\log(\hat{y}_i) + (1 - y_i)\log(1-\hat{y}_i)
+  (\#eq:logloss)
+\end{equation}$$
+
+In Equation \@ref(eq:logloss), $P$ is the total number of predictions, $y_i$ is the observed outcome (i.e., 0 or 1), and $\hat{y}_i$ is the estimated probability of the event occurring.
+
+```{r color-pal, echo = FALSE}
+make_color_pal <- function(colors, bias = 1) {
+  get_color <- colorRamp(colors, bias = bias)
+  function(x) rgb(get_color(x), maxColorValue = 255)
+}
+good_color <- make_color_pal(c("#ffffff", "#009FB7"), bias = 1)
+```
+
+
+```{r pred-acc, echo = FALSE}
+library(tidyverse)
+library(here)
+library(fs)
+library(gt)
+
+results_2020 <-
+  here("content", "post", "2021-01-06-evaluating-2020-election-forecasts",
+       "data", "results.csv") %>%
+  read_csv(col_types = cols())
+
+ev_2020 <-
+  here("content", "post", "2021-01-06-evaluating-2020-election-forecasts",
+       "data", "electoral-votes.csv") %>%
+  read_csv(col_types = cols())
+
+dir_ls(here("content", "post", "2021-01-06-evaluating-2020-election-forecasts",
+            "data", "forecasts")) %>%
+  map_dfr(read_csv, col_types = cols()) %>%
+  full_join(ev_2020, by = c("state_name", "state_abbr")) %>%
+  full_join(results_2020, by = c("state_name", "state_abbr")) %>%
+  mutate(biden = case_when(biden == 0 ~ 0.00001,
+                           biden == 1 ~ 0.99999,
+                           TRUE ~ biden)) %>%
+  group_by(model) %>%
+  summarize(log_loss = (-1 / n()) * sum((biden_win * log(biden)) + (1 - biden_win) * log(1 - biden)),
+            brier = (1 / n()) * sum((biden - biden_win) ^ 2),
+            w_brier = sum(ec_votes * ((biden - biden_win) ^ 2)),
+            .groups = "drop") %>%
+  mutate(log_loss_rank = rank(log_loss),
+         brier_rank = rank(brier),
+         w_brier_rank = rank(w_brier),
+         avg_rank = (log_loss_rank + brier_rank + w_brier_rank) / 3,
+         across(c(log_loss, brier), ratlas::fmt_digits, digits = 3),
+         w_brier = ratlas::fmt_digits(w_brier, digits = 1),
+         across(c(log_loss, brier, w_brier), as.factor),
+         log_loss = fct_reorder(log_loss, log_loss_rank),
+         brier = fct_reorder(brier, brier_rank),
+         w_brier = fct_reorder(w_brier, w_brier_rank)) %>%
+  arrange(avg_rank) %>%
+  select(-avg_rank) %>%
+  mutate(across(ends_with("_rank"), ~case_when(.x < 10 ~ paste0(" ", .x),
+                                               TRUE ~ paste0(.x)))) %>%
+  gt() %>%
+  cols_label(model = "Forecast", log_loss = "Log Loss", brier = "Brier Score",
+             w_brier = "Weighted Brier") %>%
+  tab_header(
+    title = md("**Prediction Accuracy for 2020 Election Forecasts**")
+  ) %>%
+  tab_style(style = cell_text(weight = "bold", align = "center",
+                              v_align = "middle"),
+            locations = cells_column_labels(TRUE)) %>%
+  tab_style(style = cell_fill(color = "#F0F0F0"),
+            locations = list(cells_column_labels(TRUE),
+                             cells_title("title"),
+                             cells_body(columns = vars(model)))) %>%
+  tab_style(style = cell_borders(sides = "bottom", color = "black",
+                                 weight = px(3)),
+            locations = cells_column_labels(TRUE)) %>%
+  tab_style(style = cell_text(font = "Source Sans Pro", weight = "bold",
+                              align = "left"),
+            locations = cells_title("title")) %>%
+  tab_style(style = cell_text(font = "Source Sans Pro", weight = "bold"),
+            locations = cells_column_labels(TRUE)) %>%
+  tab_style(style = cell_text(font = "Source Sans Pro"),
+            locations = cells_body(columns = vars(model))) %>%
+  tab_style(style = cell_text(font = "Source Code Pro"),
+            locations = cells_body(columns = vars(log_loss, brier, w_brier))) %>%
+  cols_width(vars(model) ~ px(200),
+             vars(log_loss, brier, w_brier) ~ px(100)) %>%
+  data_color(
+    columns = vars(log_loss, brier, w_brier),
+    colors = scales::col_factor(
+      palette = good_color(seq(0.1, 0.9, length.out = 16)),
+      domain = NULL
+    )
+  ) %>%
+  cols_merge(columns = vars(log_loss, log_loss_rank),
+             pattern = "{1}&thinsp;<sup>{2}</sup>") %>%
+  cols_merge(columns = vars(brier, brier_rank),
+             pattern = "{1}&thinsp;<sup>{2}</sup>") %>%
+  cols_merge(columns = vars(w_brier, w_brier_rank),
+             pattern = "{1}&thinsp;<sup>{2}</sup>")
+```
+

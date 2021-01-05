@@ -1,0 +1,479 @@
+---
+title: Evaluating 2020 Election Forecasts
+author: Jake Thompson
+date: '2021-01-06'
+categories:
+  - rstats
+tags:
+  - politics
+slug: evaluating-2020-election-forecasts
+authors: [W. Jake Thompson]
+summary: 'A summary...'
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<p>After two very long months, the 2020 presidential election finally comes to a close today as congress is expected to certify the electoral college results. To celebrate, I thought I’d look back at the many election forecasts we had in 2020 to see which forecast performed the best, given the results we now have. To do this, we’ll look at two outcomes: prediction accuracy and model accuracy. But first, the data!</p>
+<div id="the-forecasts" class="section level2">
+<h2>The Forecasts</h2>
+<p>There were so. many. forecasts. I tried my best to gather as many as I could prior to election day. Ultimately, here are the forecasts I was able to pull probabilities of each candidate winning from for each state.</p>
+<ul>
+<li><a href="https://forecast.decisiondeskhq.com/president">Decision Desk HQ</a></li>
+<li><a href="https://splittingamerica.neocities.org/new.html">Drord Mapmaking</a></li>
+<li><a href="https://projects.economist.com/us-2020-forecast/president">Economist</a></li>
+<li><a href="https://electoralpolls.com/">Electoral Polls</a></li>
+<li><a href="https://projects.fivethirtyeight.com/2020-election-forecast/">FiveThirtyEight</a></li>
+<li><a href="https://projects.jhkforecasts.com/presidential-forecast/">JHK Forecasts</a></li>
+<li><a href="https://leantossup.ca/us-presidency/">Lean Tossup</a></li>
+<li><a href="https://www.newstatesman.com/international/2020/11/us-2020-presidential-election-forecast-model-will-donald-trump-or-joe-biden">New Statesman</a></li>
+<li><a href="http://www.pluralvote.com/article/2020-forecast/">Plural Vote</a></li>
+<li><a href="https://www.predictit.org/markets/13/Prez-Election">PredictIt</a></li>
+<li><a href="https://election.princeton.edu/for-fellow-geeks/">Princeton Election Consortium</a></li>
+<li><a href="https://www.ourprogress.org/forecast">Progress Campaign</a></li>
+<li><a href="https://www.racetothewh.com/president">Race to the White House</a></li>
+<li><a href="https://reedforecasts.com/">Reed Forecasts</a></li>
+<li><a href="https://thecycle.news/news/september-2020-election-update">The Cycle</a></li>
+</ul>
+<p>I also pulled the 2016 map to use as a baseline measure. All of the data is available in a Google sheet <a href="https://docs.google.com/spreadsheets/d/1CpMPWCHLfwByucZz9fzIH8ivHnIcfmrYUjKQ1tFTbFU/">here</a>. In the Google sheet, the probabilities indicate the probability that Joe Biden would win each state.</p>
+<p>A few of the forecasts (including notably, the Economist) did not forecast the congressional districts in Nebraska and Maine separately from the whole state. Thus, for those forecasts, I used the statewide probability for each of the individual congressional districts as well, as that was the probability those forecasts assigned to each candidate for winning <em>all</em> electoral college votes from the state.</p>
+</div>
+<div id="prediction-accuracy" class="section level2">
+<h2>Prediction Accuracy</h2>
+<p>We’re defining prediction accuracy as how close the estimated probabilities were to the observed outcome. We can assess this through three measures: log-loss, Brier Score, and a weighted Brier Score. All of these measures evaluate how close the probability was to the observed event. The log-loss is defined as</p>
+<p><span class="math display" id="eq:logloss">\[\begin{equation}
+  LogLoss=-\frac{1}{P}\sum_{i=1}^Py_i\log(\hat{y}_i) + (1 - y_i)\log(1-\hat{y}_i)
+  \tag{1}
+\end{equation}\]</span></p>
+<p>In Equation <a href="#eq:logloss">(1)</a>, <span class="math inline">\(P\)</span> is the total number of predictions, <span class="math inline">\(y_i\)</span> is the observed outcome (i.e., 0 or 1), and <span class="math inline">\(\hat{y}_i\)</span> is the estimated probability of the event occurring.</p>
+<style>html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#xditcytlpr .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#xditcytlpr .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#xditcytlpr .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#xditcytlpr .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 4px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#xditcytlpr .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#xditcytlpr .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#xditcytlpr .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#xditcytlpr .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#xditcytlpr .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#xditcytlpr .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#xditcytlpr .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#xditcytlpr .gt_group_heading {
+  padding: 8px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#xditcytlpr .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#xditcytlpr .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#xditcytlpr .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#xditcytlpr .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#xditcytlpr .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 12px;
+}
+
+#xditcytlpr .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#xditcytlpr .gt_first_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+}
+
+#xditcytlpr .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#xditcytlpr .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#xditcytlpr .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#xditcytlpr .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#xditcytlpr .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#xditcytlpr .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding: 4px;
+}
+
+#xditcytlpr .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#xditcytlpr .gt_sourcenote {
+  font-size: 90%;
+  padding: 4px;
+}
+
+#xditcytlpr .gt_left {
+  text-align: left;
+}
+
+#xditcytlpr .gt_center {
+  text-align: center;
+}
+
+#xditcytlpr .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#xditcytlpr .gt_font_normal {
+  font-weight: normal;
+}
+
+#xditcytlpr .gt_font_bold {
+  font-weight: bold;
+}
+
+#xditcytlpr .gt_font_italic {
+  font-style: italic;
+}
+
+#xditcytlpr .gt_super {
+  font-size: 65%;
+}
+
+#xditcytlpr .gt_footnote_marks {
+  font-style: italic;
+  font-size: 65%;
+}
+</style>
+<div id="xditcytlpr" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;"><table class="gt_table" style="table-layout: fixed;; width: 0px">
+  <colgroup>
+    <col style="width:200px;"/>
+    <col style="width:100px;"/>
+    <col style="width:100px;"/>
+    <col style="width:100px;"/>
+  </colgroup>
+  <thead class="gt_header">
+    <tr>
+      <th colspan="4" class="gt_heading gt_title gt_font_normal gt_bottom_border" style="background-color: #F0F0F0; font-family: &#39;Source Sans Pro&#39;; text-align: left; font-weight: bold;"><strong>Prediction Accuracy for 2020 Election Forecasts</strong></th>
+    </tr>
+    
+  </thead>
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" style="text-align: center; vertical-align: middle; font-weight: bold; font-family: &#39;Source Sans Pro&#39;; background-color: #F0F0F0; border-bottom-width: 3px; border-bottom-style: solid; border-bottom-color: black;">Forecast</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" style="text-align: center; vertical-align: middle; font-weight: bold; font-family: &#39;Source Sans Pro&#39;; background-color: #F0F0F0; border-bottom-width: 3px; border-bottom-style: solid; border-bottom-color: black;">Log Loss</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" style="text-align: center; vertical-align: middle; font-weight: bold; font-family: &#39;Source Sans Pro&#39;; background-color: #F0F0F0; border-bottom-width: 3px; border-bottom-style: solid; border-bottom-color: black;">Brier Score</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" style="text-align: center; vertical-align: middle; font-weight: bold; font-family: &#39;Source Sans Pro&#39;; background-color: #F0F0F0; border-bottom-width: 3px; border-bottom-style: solid; border-bottom-color: black;">Weighted Brier</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td class="gt_row gt_left" style="background-color: #F0F0F0; font-family: 'Source Sans Pro';">Electoral Polls</td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #E5F5F7;">0.116&thinsp;<sup> 1</sup></td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #D2EEF2;">0.039&thinsp;<sup> 2</sup></td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #D7F0F3;">32.3&thinsp;<sup> 2</sup></td></tr>
+    <tr><td class="gt_row gt_left" style="background-color: #F0F0F0; font-family: 'Source Sans Pro';">JHK</td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #D6F0F3;">0.118&thinsp;<sup> 2</sup></td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #D2EEF2;">0.039&thinsp;<sup> 3</sup></td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #AFE0E8;">35.6&thinsp;<sup> 5</sup></td></tr>
+    <tr><td class="gt_row gt_left" style="background-color: #F0F0F0; font-family: 'Source Sans Pro';">PredictIt</td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #71C9D7;">0.158&thinsp;<sup>10</sup></td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #E5F5F7;">0.038&thinsp;<sup> 1</sup></td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #E5F5F7;">29.5&thinsp;<sup> 1</sup></td></tr>
+    <tr><td class="gt_row gt_left" style="background-color: #F0F0F0; font-family: 'Source Sans Pro';">Princeton</td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #C8EAEF;">0.123&thinsp;<sup> 3</sup></td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #AEE0E8;">0.041&thinsp;<sup> 5</sup></td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #BCE6EC;">34.2&thinsp;<sup> 4</sup></td></tr>
+    <tr><td class="gt_row gt_left" style="background-color: #F0F0F0; font-family: 'Source Sans Pro';">Plural Vote</td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #ABDFE7;">0.133&thinsp;<sup> 5</sup></td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #9BD9E2;">0.042&thinsp;<sup> 7</sup></td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #CAEBF0;">33.1&thinsp;<sup> 3</sup></td></tr>
+    <tr><td class="gt_row gt_left" style="background-color: #F0F0F0; font-family: 'Source Sans Pro';">FiveThirtyEight</td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #8DD4DE;">0.137&thinsp;<sup> 8</sup></td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #C0E7ED;">0.040&thinsp;<sup> 4</sup></td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #A1DBE4;">35.7&thinsp;<sup> 6</sup></td></tr>
+    <tr><td class="gt_row gt_left" style="background-color: #F0F0F0; font-family: 'Source Sans Pro';">Race to the White House</td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #B9E5EB;">0.132&thinsp;<sup> 4</sup></td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #76CBD8;">0.046&thinsp;<sup> 9</sup></td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #4FBDCD;">42.2&thinsp;<sup>12</sup></td></tr>
+    <tr><td class="gt_row gt_left" style="background-color: #F0F0F0; font-family: 'Source Sans Pro';">Progress Campaign</td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #7FCEDA;">0.149&thinsp;<sup> 9</sup></td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #88D2DD;">0.045&thinsp;<sup> 8</sup></td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #78CCD9;">39.1&thinsp;<sup> 9</sup></td></tr>
+    <tr><td class="gt_row gt_left" style="background-color: #F0F0F0; font-family: 'Source Sans Pro';">The Cycle</td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #9CD9E3;">0.134&thinsp;<sup> 6</sup></td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #AEE0E8;">0.041&thinsp;<sup> 6</sup></td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #34B2C5;">43.9&thinsp;<sup>14</sup></td></tr>
+    <tr><td class="gt_row gt_left" style="background-color: #F0F0F0; font-family: 'Source Sans Pro';">Decision Desk HQ</td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #62C4D2;">0.160&thinsp;<sup>11</sup></td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #76CBD8;">0.046&thinsp;<sup>10</sup></td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #93D6E0;">37.7&thinsp;<sup> 7</sup></td></tr>
+    <tr><td class="gt_row gt_left" style="background-color: #F0F0F0; font-family: 'Source Sans Pro';">Drord Mapmaking</td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #8DD4DE;">0.137&thinsp;<sup> 7</sup></td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #76CBD8;">0.046&thinsp;<sup>11</sup></td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #42B7C9;">42.4&thinsp;<sup>13</sup></td></tr>
+    <tr><td class="gt_row gt_left" style="background-color: #F0F0F0; font-family: 'Source Sans Pro';">Reed</td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #45B8CA;">0.189&thinsp;<sup>13</sup></td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #64C4D3;">0.055&thinsp;<sup>12</sup></td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #6BC7D5;">39.3&thinsp;<sup>10</sup></td></tr>
+    <tr><td class="gt_row gt_left" style="background-color: #F0F0F0; font-family: 'Source Sans Pro';">New Statesman</td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #36B3C6;">0.236&thinsp;<sup>14</sup></td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #3EB6C8;">0.068&thinsp;<sup>14</sup></td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #86D1DC;">39.0&thinsp;<sup> 8</sup></td></tr>
+    <tr><td class="gt_row gt_left" style="background-color: #F0F0F0; font-family: 'Source Sans Pro';">Lean Tossup</td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #53BECE;">0.170&thinsp;<sup>12</sup></td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #50BDCD;">0.061&thinsp;<sup>13</sup></td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #27ADC2;">62.9&thinsp;<sup>15</sup></td></tr>
+    <tr><td class="gt_row gt_left" style="background-color: #F0F0F0; font-family: 'Source Sans Pro';">Economist</td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #28ADC2;">0.385&thinsp;<sup>15</sup></td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #2CAFC3;">0.069&thinsp;<sup>15</sup></td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #5DC2D1;">39.8&thinsp;<sup>11</sup></td></tr>
+    <tr><td class="gt_row gt_left" style="background-color: #F0F0F0; font-family: 'Source Sans Pro';">2016 Map</td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #19A8BE;">1.234&thinsp;<sup>16</sup></td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #19A8BE;">0.107&thinsp;<sup>16</sup></td>
+<td class="gt_row gt_center" style="font-family: 'Source Code Pro'; color: #000000; background-color: #19A8BE;">74.0&thinsp;<sup>16</sup></td></tr>
+  </tbody>
+  
+  
+</table></div>
+</div>
