@@ -9229,7 +9229,8 @@ a.nav-link:hover:after {
 
 /* home page */
 .portrait-title h2 {
-  color: #333; }
+  color: #333;
+  font-size: 1.5em; }
 
 #about .col-12.col-lg-8 {
   padding-top: 30px !important; }
