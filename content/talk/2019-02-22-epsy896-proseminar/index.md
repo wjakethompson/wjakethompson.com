@@ -2,7 +2,7 @@
 title: Psychometric Considerations for Learning Maps-Based Assessments
 draft: false
 authors: 
-  - W. Jake Thompson
+  - wjake
   - Brooke Nash
   - Amy K. Clark
 event: 'Educational Psychology Proseminar'

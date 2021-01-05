@@ -7,7 +7,7 @@ categories:
 tags:
   - politics
 slug: evaluating-2020-election-forecasts
-authors: [W. Jake Thompson]
+authors: [wjake]
 summary: 'A summary...'
 image:
   caption: ''
