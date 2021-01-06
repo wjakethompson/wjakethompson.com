@@ -2,6 +2,9 @@
 title: Evaluating 2020 Election Forecasts
 author: Jake Thompson
 date: '2021-01-06'
+output:
+  blogdown::html_page:
+    fig_caption: false
 categories:
   - rstats
 tags:
@@ -17,6 +20,7 @@ image:
 
 ```{r setup, include = FALSE, message = FALSE}
 library(tidyverse)
+library(wjake)
 knitr::opts_chunk$set(
   collapse = TRUE,
   message = FALSE,
@@ -27,8 +31,11 @@ knitr::opts_chunk$set(
   fig.align = "center",
   fig.width = 8,
   fig.retina = 2,
-  out.width = "100%"
+  out.width = "70%"
 )
+
+wjake::set_theme(base_family = "Source Sans Pro",
+                 plot_margin = margin(10, 10, 10, 10))
 ```
 
 After two very long months, the 2020 presidential election finally comes to a close today as congress is expected to certify the electoral college results. To celebrate, I thought I'd look back at the many election forecasts we had in 2020 to see which forecast performed the best, given the results we now have. To do this, we'll look at two outcomes: prediction accuracy and model accuracy. But first, the data!
@@ -59,14 +66,58 @@ A few of the forecasts (including notably, the Economist) did not forecast the c
 
 ## Prediction Accuracy
 
-We're defining prediction accuracy as how close the estimated probabilities were to the observed outcome. We can assess this through three measures: log-loss, Brier Score, and a weighted Brier Score. All of these measures evaluate how close the probability was to the observed event. The log-loss is defined as
+We're defining prediction accuracy as how close the estimated probabilities were to the observed outcome. We can assess this through three measures: log-loss, Brier Score, and a weighted Brier Score. All of these measures evaluate how close the probability was to the observed event. The [log-loss](https://www.kaggle.com/dansbecker/what-is-log-loss) is very common classification metric and is defined as
 
 $$\begin{equation}
-  LogLoss=-\frac{1}{P}\sum_{i=1}^Py_i\log(\hat{y}_i) + (1 - y_i)\log(1-\hat{y}_i)
+  \text{Log-Loss}=-\frac{1}{P}\sum_{i=1}^Py_i\log(\hat{y}_i) + (1 - y_i)\log(1-\hat{y}_i)
   (\#eq:logloss)
 \end{equation}$$
 
-In Equation \@ref(eq:logloss), $P$ is the total number of predictions, $y_i$ is the observed outcome (i.e., 0 or 1), and $\hat{y}_i$ is the estimated probability of the event occurring.
+In Equation \@ref(eq:logloss), $P$ is the total number of predictions, $y_i$ is the observed outcome (i.e., 0 or 1), and $\hat{y}_i$ is the estimated probability of the event occurring. When the event occurs (i.e., $y_i = 1$), we add the log of the probability of the event in our sum. Conversely, when the event doesn't occur (i.e., $y_i = 0$) we add the log of the probability of the event *not* occurring, that is, $1 - \hat{y}_i$. The lower the probability of the observed outcome, the larger the term will be that gets included in the. We then take the average to get the average log probability of the observed events. Finally, because all the log probabilities are negative, we multiply by -1 so that everything is positive and smaller scores relate to smaller prediction errors.
+
+The second measure is the [Brier score](https://en.wikipedia.org/wiki/Brier_score). This measure is a little easier to calculate. Essentially, the Brier score is the mean squared error of predictions. 
+
+$$\begin{equation}
+  \text{Brier Score} = \frac{1}{P}\sum_{i=1}^P(\hat{y}_i - y_i)^2
+  (\#eq:brier)
+\end{equation}$$
+
+Unlike, the log-loss, the penalty for the Brier score is almost linear. Below we can see that the log-loss penalty increases exponentially for observed events with a low probability, whereas the Brier penalty increases much more slowly. Therefore, the Brier Score is more forgiving of a forecast that estimated low probabilities for events that ended up happening. 
+
+<details><summary>Code to reproduce</summary>
+
+```{r penalty-comp}
+tibble(prob = seq(0, 1, by = 0.01)) %>%
+  mutate(log_loss = -1 * log(prob),
+         brier = (prob - 1) ^ 2,
+         log_loss = case_when(is.infinite(log_loss) ~ NA_real_,
+                              TRUE ~ log_loss)) %>%
+  pivot_longer(cols = c(log_loss, brier), names_to = "measure",
+               values_to = "penalty") %>%
+  ggplot(aes(x = prob, y = penalty)) +
+  geom_line(aes(color = measure), na.rm = TRUE) +
+  scale_color_okabeito(labels = c("Brier Score", "Log-Loss")) +
+  labs(x = "Event Probability", y = "Penalty", color = NULL,
+       title = "Penalty Score for Observed Event",
+       subtitle = "Log-loss penalty increases more dramatically",
+       caption = "Plot: @wjakethompson") +
+  theme(plot.caption = element_text(face = "plain")) -> p
+
+ggsave2(p, knitr::fig_path(".png"), width = 6, height = 6)
+```
+
+</details>
+
+![Penalty scores across a range of probabilities](index_files/figure-html/penalty-comp-1.png){width=80%}
+
+A perfect prediction (e.g., a probability of 1.0 and the event actually occurring) would result in a Brier score of 0, as $y_i$ and $\hat{y}_i$ are the same. Conversely, is 1 when the probability of an event is 1.0 and the even doesn't occur, or the reverse where the probability is 0.0 and the event does occur. As with the log-loss, we take the average of all the error terms to get the overall Brier score.
+
+The final measure is a weighted Brier score. The idea here is that not all predictions are created equal. In the United States' election system, states have different numbers of electoral votes. Therefore, we should weight our predictions based on their influence on the overall outcome. For example, suppose a forecast gave Donald Trump a 70% chance of winning both Vermont and California (purposefully choosing outrageous examples). In reality, Trump won neither. Should an equal penalty be applied for each state? Vermont has only 3 electoral votes, whereas California has 55, more than any other state. Therefore, getting California wrong has a much larger impact on determining the winner of the presidential race. To account for this, we can weight the Brier score by the number of electoral votes for each state.
+
+$$\begin{equation}
+  \text{Weighted Brier Score} = \sum_{i = 1}^PEV_i(\hat{y}_i - y_i)^2
+  (\#eq:w-brier)
+\end{equation}$$
 
 ```{r color-pal, echo = FALSE}
 make_color_pal <- function(colors, bias = 1) {
@@ -75,7 +126,6 @@ make_color_pal <- function(colors, bias = 1) {
 }
 good_color <- make_color_pal(c("#ffffff", "#009FB7"), bias = 1)
 ```
-
 
 ```{r pred-acc, echo = FALSE}
 library(tidyverse)
@@ -93,16 +143,20 @@ ev_2020 <-
        "data", "electoral-votes.csv") %>%
   read_csv(col_types = cols())
 
-dir_ls(here("content", "post", "2021-01-06-evaluating-2020-election-forecasts",
+raw_data <-
+  dir_ls(here("content", "post", "2021-01-06-evaluating-2020-election-forecasts",
             "data", "forecasts")) %>%
   map_dfr(read_csv, col_types = cols()) %>%
   full_join(ev_2020, by = c("state_name", "state_abbr")) %>%
-  full_join(results_2020, by = c("state_name", "state_abbr")) %>%
+  full_join(results_2020, by = c("state_name", "state_abbr"))
+
+table_dat <- raw_data %>%
   mutate(biden = case_when(biden == 0 ~ 0.00001,
                            biden == 1 ~ 0.99999,
                            TRUE ~ biden)) %>%
   group_by(model) %>%
-  summarize(log_loss = (-1 / n()) * sum((biden_win * log(biden)) + (1 - biden_win) * log(1 - biden)),
+  summarize(log_loss = (-1 / n()) *
+              sum((biden_win * log(biden)) + (1 - biden_win) * log(1 - biden)),
             brier = (1 / n()) * sum((biden - biden_win) ^ 2),
             w_brier = sum(ec_votes * ((biden - biden_win) ^ 2)),
             .groups = "drop") %>%
@@ -119,32 +173,58 @@ dir_ls(here("content", "post", "2021-01-06-evaluating-2020-election-forecasts",
   arrange(avg_rank) %>%
   select(-avg_rank) %>%
   mutate(across(ends_with("_rank"), ~case_when(.x < 10 ~ paste0(" ", .x),
-                                               TRUE ~ paste0(.x)))) %>%
+                                               TRUE ~ paste0(.x))))
+
+gt_theme_wjake <- function(data, bg_color = "#F0F0F0", ...) {
+  data %>%
+    opt_all_caps() %>%
+    opt_table_font(font = list(google_font("Source Sans Pro"),
+                               default_fonts())) %>%
+    tab_options(column_labels.background.color = bg_color,
+                column_labels.border.top.width = px(3),
+                column_labels.border.top.color = bg_color,
+                table.border.top.width = px(1),
+                table.border.bottom.width = px(1),
+                heading.align = "left",
+                heading.background.color = bg_color,
+                source_notes.padding = px(10),
+                source_notes.border.lr.width = px(0),
+                source_notes.font.size = 12,
+                source_notes.background.color = bg_color,
+                table.font.size = 16,
+                data_row.padding = px(3),
+                table.background.color = bg_color,
+                ...) %>%
+    tab_style(style = cell_borders(sides = "bottom", color = "transparent",
+                                   weight = px(2)),
+              locations = cells_body(columns = TRUE,
+                                     rows = nrow(data$`_data`))) %>%
+    tab_style(style = list(cell_text(weight = "bold", align = "center",
+                                     v_align = "middle"),
+                           cell_borders(sides = "bottom", color = "black",
+                                        weight = px(3))),
+              locations = cells_column_labels(TRUE))
+}
+
+table_dat %>%
   gt() %>%
+  gt_theme_wjake() %>%
   cols_label(model = "Forecast", log_loss = "Log Loss", brier = "Brier Score",
              w_brier = "Weighted Brier") %>%
   tab_header(
     title = md("**Prediction Accuracy for 2020 Election Forecasts**")
   ) %>%
-  tab_style(style = cell_text(weight = "bold", align = "center",
-                              v_align = "middle"),
-            locations = cells_column_labels(TRUE)) %>%
-  tab_style(style = cell_fill(color = "#F0F0F0"),
-            locations = list(cells_column_labels(TRUE),
-                             cells_title("title"),
-                             cells_body(columns = vars(model)))) %>%
-  tab_style(style = cell_borders(sides = "bottom", color = "black",
-                                 weight = px(3)),
-            locations = cells_column_labels(TRUE)) %>%
-  tab_style(style = cell_text(font = "Source Sans Pro", weight = "bold",
-                              align = "left"),
-            locations = cells_title("title")) %>%
-  tab_style(style = cell_text(font = "Source Sans Pro", weight = "bold"),
-            locations = cells_column_labels(TRUE)) %>%
-  tab_style(style = cell_text(font = "Source Sans Pro"),
-            locations = cells_body(columns = vars(model))) %>%
+  tab_source_note(source_note = "TABLE: @WJAKETHOMPSON3") %>%
+  cols_merge(columns = vars(log_loss, log_loss_rank),
+             pattern = "{1}&thinsp;<sup>{2}</sup>") %>%
+  cols_merge(columns = vars(brier, brier_rank),
+             pattern = "{1}&thinsp;<sup>{2}</sup>") %>%
+  cols_merge(columns = vars(w_brier, w_brier_rank),
+             pattern = "{1}&thinsp;<sup>{2}</sup>") %>%
   tab_style(style = cell_text(font = "Source Code Pro"),
-            locations = cells_body(columns = vars(log_loss, brier, w_brier))) %>%
+            locations = cells_body(
+              columns = vars(log_loss, brier, w_brier)
+            )) %>%
   cols_width(vars(model) ~ px(200),
              vars(log_loss, brier, w_brier) ~ px(100)) %>%
   data_color(
@@ -153,12 +233,6 @@ dir_ls(here("content", "post", "2021-01-06-evaluating-2020-election-forecasts",
       palette = good_color(seq(0.1, 0.9, length.out = 16)),
       domain = NULL
     )
-  ) %>%
-  cols_merge(columns = vars(log_loss, log_loss_rank),
-             pattern = "{1}&thinsp;<sup>{2}</sup>") %>%
-  cols_merge(columns = vars(brier, brier_rank),
-             pattern = "{1}&thinsp;<sup>{2}</sup>") %>%
-  cols_merge(columns = vars(w_brier, w_brier_rank),
-             pattern = "{1}&thinsp;<sup>{2}</sup>")
+  )
 ```
 
