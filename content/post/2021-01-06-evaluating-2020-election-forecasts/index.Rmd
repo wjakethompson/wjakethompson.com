@@ -86,7 +86,7 @@ Unlike, the log-loss, the penalty for the Brier score is almost linear. Below we
 
 <details><summary>Code to reproduce</summary>
 
-```{r penalty-comp}
+```{r penalty-comp, eval = FALSE}
 tibble(prob = seq(0, 1, by = 0.01)) %>%
   mutate(log_loss = -1 * log(prob),
          brier = (prob - 1) ^ 2,
@@ -203,7 +203,10 @@ gt_theme_wjake <- function(data, bg_color = "#F0F0F0", ...) {
                                      v_align = "middle"),
                            cell_borders(sides = "bottom", color = "black",
                                         weight = px(3))),
-              locations = cells_column_labels(TRUE))
+              locations = cells_column_labels(TRUE)) %>%
+    tab_style(style = cell_fill(color = "#F0F0F0"),
+              locations = list(cells_body(columns = gt::everything(),
+                                          rows = gt::everything())))
 }
 
 table_dat %>%
