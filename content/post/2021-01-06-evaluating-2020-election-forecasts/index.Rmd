@@ -34,7 +34,7 @@ knitr::opts_chunk$set(
   out.width = "70%"
 )
 
-wjake::set_theme(base_family = "Source Sans Pro",
+wjake::set_theme(base_family = "Source Sans Pro", d_scale = "wjake",
                  plot_margin = margin(10, 10, 10, 10))
 ```
 
@@ -96,7 +96,7 @@ tibble(prob = seq(0, 1, by = 0.01)) %>%
                values_to = "penalty") %>%
   ggplot(aes(x = prob, y = penalty)) +
   geom_line(aes(color = measure), na.rm = TRUE) +
-  scale_color_okabeito(labels = c("Brier Score", "Log-Loss")) +
+  scale_color_wjake(labels = c("Brier Score", "Log-Loss")) +
   labs(x = "Event Probability", y = "Penalty", color = NULL,
        title = "Penalty Score for Observed Event",
        subtitle = "Log-loss penalty increases more dramatically",
@@ -115,23 +115,20 @@ A perfect prediction (e.g., a probability of 1.0 and the event actually occurrin
 The final measure is a weighted Brier score. The idea here is that not all predictions are created equal. In the United States' election system, states have different numbers of electoral votes. Therefore, we should weight our predictions based on their influence on the overall outcome. For example, suppose a forecast gave Donald Trump a 70% chance of winning both Vermont and California (purposefully choosing outrageous examples). In reality, Trump won neither. Should an equal penalty be applied for each state? Vermont has only 3 electoral votes, whereas California has 55, more than any other state. Therefore, getting California wrong has a much larger impact on determining the winner of the presidential race. To account for this, we can weight the Brier score by the number of electoral votes for each state.
 
 $$\begin{equation}
-  \text{Weighted Brier Score} = \sum_{i = 1}^PEV_i(\hat{y}_i - y_i)^2
+  \text{Weighted Brier Score} = \frac{1}{\sum_{i=1}^PEV_i}\sum_{i = 1}^PEV_i(\hat{y}_i - y_i)^2
   (\#eq:w-brier)
 \end{equation}$$
 
-```{r color-pal, echo = FALSE}
-make_color_pal <- function(colors, bias = 1) {
-  get_color <- colorRamp(colors, bias = bias)
-  function(x) rgb(get_color(x), maxColorValue = 255)
-}
-good_color <- make_color_pal(c("#ffffff", "#009FB7"), bias = 1)
-```
+In Equation \@ref(eq:w-brier), $EV_i$ is the number of electoral votes for the given prediction. Thus, instead of taking a pure average of the squared errors, we are taking a weighted average. We multiply each squared error by the number of electoral votes associated with the prediction, and then divide to sum of the weighted errors by the total weight, or the total number of electoral college votes.
 
-```{r pred-acc, echo = FALSE}
+Using this formulas, we can calculate the prediction accuracy measures for each forecast. These results are summarized in the table below.
+
+<details><summary>Code to reproduce</summary>
+
+```{r calc-pred-acc}
 library(tidyverse)
 library(here)
 library(fs)
-library(gt)
 
 results_2020 <-
   here("content", "post", "2021-01-06-evaluating-2020-election-forecasts",
@@ -150,7 +147,7 @@ raw_data <-
   full_join(ev_2020, by = c("state_name", "state_abbr")) %>%
   full_join(results_2020, by = c("state_name", "state_abbr"))
 
-table_dat <- raw_data %>%
+pred_acc_results <- raw_data %>%
   mutate(biden = case_when(biden == 0 ~ 0.00001,
                            biden == 1 ~ 0.99999,
                            TRUE ~ biden)) %>%
@@ -158,14 +155,21 @@ table_dat <- raw_data %>%
   summarize(log_loss = (-1 / n()) *
               sum((biden_win * log(biden)) + (1 - biden_win) * log(1 - biden)),
             brier = (1 / n()) * sum((biden - biden_win) ^ 2),
-            w_brier = sum(ec_votes * ((biden - biden_win) ^ 2)),
-            .groups = "drop") %>%
+            w_brier = (1 / sum(ec_votes)) * sum(ec_votes * ((biden - biden_win) ^ 2)),
+            .groups = "drop")
+
+pred_acc_results
+```
+
+```{r create-pred-acc}
+library(gt)
+
+pred_acc_results %>%
   mutate(log_loss_rank = rank(log_loss),
          brier_rank = rank(brier),
          w_brier_rank = rank(w_brier),
          avg_rank = (log_loss_rank + brier_rank + w_brier_rank) / 3,
-         across(c(log_loss, brier), ratlas::fmt_digits, digits = 3),
-         w_brier = ratlas::fmt_digits(w_brier, digits = 1),
+         across(c(log_loss, brier, w_brier), ratlas::fmt_digits, digits = 3),
          across(c(log_loss, brier, w_brier), as.factor),
          log_loss = fct_reorder(log_loss, log_loss_rank),
          brier = fct_reorder(brier, brier_rank),
@@ -173,43 +177,7 @@ table_dat <- raw_data %>%
   arrange(avg_rank) %>%
   select(-avg_rank) %>%
   mutate(across(ends_with("_rank"), ~case_when(.x < 10 ~ paste0(" ", .x),
-                                               TRUE ~ paste0(.x))))
-
-gt_theme_wjake <- function(data, bg_color = "#F0F0F0", ...) {
-  data %>%
-    opt_all_caps() %>%
-    opt_table_font(font = list(google_font("Source Sans Pro"),
-                               default_fonts())) %>%
-    tab_options(column_labels.background.color = bg_color,
-                column_labels.border.top.width = px(3),
-                column_labels.border.top.color = bg_color,
-                table.border.top.width = px(1),
-                table.border.bottom.width = px(1),
-                heading.align = "left",
-                heading.background.color = bg_color,
-                source_notes.padding = px(10),
-                source_notes.border.lr.width = px(0),
-                source_notes.font.size = 12,
-                source_notes.background.color = bg_color,
-                table.font.size = 16,
-                data_row.padding = px(3),
-                table.background.color = bg_color,
-                ...) %>%
-    tab_style(style = cell_borders(sides = "bottom", color = "transparent",
-                                   weight = px(2)),
-              locations = cells_body(columns = TRUE,
-                                     rows = nrow(data$`_data`))) %>%
-    tab_style(style = list(cell_text(weight = "bold", align = "center",
-                                     v_align = "middle"),
-                           cell_borders(sides = "bottom", color = "black",
-                                        weight = px(3))),
-              locations = cells_column_labels(TRUE)) %>%
-    tab_style(style = cell_fill(color = "#F0F0F0"),
-              locations = list(cells_body(columns = gt::everything(),
-                                          rows = gt::everything())))
-}
-
-table_dat %>%
+                                               TRUE ~ paste0(.x)))) %>%
   gt() %>%
   gt_theme_wjake() %>%
   cols_label(model = "Forecast", log_loss = "Log Loss", brier = "Brier Score",
@@ -217,7 +185,7 @@ table_dat %>%
   tab_header(
     title = md("**Prediction Accuracy for 2020 Election Forecasts**")
   ) %>%
-  tab_source_note(source_note = "TABLE: @WJAKETHOMPSON3") %>%
+  tab_source_note(source_note = "TABLE: @WJAKETHOMPSON") %>%
   cols_merge(columns = vars(log_loss, log_loss_rank),
              pattern = "{1}&thinsp;<sup>{2}</sup>") %>%
   cols_merge(columns = vars(brier, brier_rank),
@@ -233,9 +201,15 @@ table_dat %>%
   data_color(
     columns = vars(log_loss, brier, w_brier),
     colors = scales::col_factor(
-      palette = good_color(seq(0.1, 0.9, length.out = 16)),
+      palette = ramp_blue(seq(0.1, 0.9, length.out = 16)),
       domain = NULL
     )
-  )
+  ) -> gt_pred_acc
+```
+
+</details>\
+
+```{r print-pred-acc, echo = FALSE}
+gt_pred_acc
 ```
 
