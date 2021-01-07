@@ -213,3 +213,204 @@ pred_acc_results %>%
 gt_pred_acc
 ```
 
+Overall, the Electoral Polls forecast had the best accuracy. The biggest surprise to me was that the Economist forecast came in last, only beating the baseline 2016 map. What what gives? Let's compare the Economist forecast to the FiveThirtyEight forecast, which came in close the the middle of the road. The two biggest misses for the Economist were the congressional districts from Nebraska and Maine that went in the opposite direction of the overall state. Maybe this isn't fair since the Economist didn't actually forecast the individual congressional districts, but on the other hand, the statewide forecast from the Economist included all of the electoral votes from that state, including the congressional district votes. The other two largest penalties came from North Carolina and Florida. In North Carolina, the Economist forecast gave Trump a 30% chance of winning, compared to 36% in the FiveThirtyEight model. Similarly in Florida, the Economist model gave Trump only a 20% chance of winning, compared to 31% in the FiveThirtyEight model. Trump ended up winning both states, so there were smaller penalties for FiveThirtyEight since that model gave Trump a greater chance of winning.
+
+<details><summary>Code to reproduce</summary>
+
+```{r brier-compare, eval = FALSE}
+library(gghighlight)
+library(ggrepel)
+
+raw_data %>%
+  filter(model %in% c("Economist", "FiveThirtyEight")) %>%
+  mutate(biden = case_when(biden == 0 ~ 0.00001,
+                           biden == 1 ~ 0.99999,
+                           TRUE ~ biden)) %>%
+  group_by(model) %>%
+  mutate(log_loss_penalty = -1 *
+           ((biden_win * log(biden)) + ((1 - biden_win) * log(1 - biden))),
+         brier_penalty = (biden - biden_win) ^ 2) %>%
+  pivot_wider(names_from = model,
+              values_from = c(trump, biden, log_loss_penalty, brier_penalty)) %>%
+  ggplot(aes(x = brier_penalty_Economist, y = brier_penalty_FiveThirtyEight)) +
+  geom_point(aes(size = ec_votes, color = factor(biden_win)), alpha = 0.6) +
+  gghighlight(brier_penalty_Economist > 0.25, label_key = state_abbr,
+              label_params = list(size = 3), use_group_by = FALSE,
+              use_direct_label = FALSE) +
+  geom_label_repel(aes(label = state_abbr, color = factor(biden_win)),
+                   size = 3, show.legend = FALSE) +
+  scale_color_manual(values = c("red", "blue"),
+                     labels = c("Trump", "Biden"),
+                     name = "Winner") +
+  scale_size_area(name = "Electoral Votes",
+                  limits = c(1, 55),
+                  breaks = c(1, 5, 10, 20, 40)) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
+  expand_limits(x = c(0, 1), y = c(0, 1)) +
+  labs(x = "Economist", y = "FiveThirtyEight",
+       title = "Brier Penalties for Each Prediction",
+       subtitle = "Economist predictions hurt by un-forecasted congressional districts",
+       caption = "Plot: @wjakethompson") +
+  guides(color = guide_legend(override.aes = list(alpha = 1, size = 2),
+                              order = 1),
+         size = guide_legend(order = 2)) +
+  theme(plot.caption = element_text(face = "plain"),
+        legend.box = "vertical") -> p
+
+ggsave2(p, knitr::fig_path(".png"), width = 6, height = 6)
+```
+
+</details>
+
+![Brier penalties for Economist and FiveThirtyEight forecasts](index_files/figure-html/brier-compare-1.png){width=80%}
+
+## Model Accuracy
+
+For an evaluation of model accuracy, we assume that the estimated probabilities from each forecast are true. Using these probabilities, we then simulate the election hundreds or thousands of times. From each simulation, we can then calculate the number of electoral votes won by each candidate and the number of states that were picked incorrectly. Across all simulations, we can then compare the distributions of the summary statistics to the observed outcomes. 
+
+<details><summary>Code to reproduce</summary>
+
+```{r simulate-elections, cache = TRUE}
+# Observed results -------------------------------------------------------------
+real_election <- raw_data %>%
+  filter(model != "2016 Map") %>%
+  mutate(biden_pick = case_when(biden >= 0.5 ~ 1L,
+                                TRUE ~ 0L)) %>%
+  group_by(model) %>%
+  summarize(biden_ec = sum(ec_votes * biden_win),
+            incorrect_picks = sum(biden_pick != biden_win))
+
+# Calculate correlations between states/CDs ------------------------------------
+library(politicaldata)
+
+states <- distinct(raw_data, state_name, state_abbr)
+
+historical_results <- read_csv(here("content", "post",
+                                    "2016-11-08-election-forecast-performance",
+                                    "data", "election_dem_history.csv"),
+                               col_types = cols()) %>%
+  arrange(Year) %>%
+  filter(Year < 1976) %>%
+  rename(`District of Columbia` = `Washington DC`)
+
+new_states <- pres_results %>%
+  as_tibble() %>%
+  distinct(state_abbr = state, Year = year, dem) %>%
+  left_join(states, by = "state_abbr") %>%
+  select(-state_abbr) %>%
+  pivot_wider(names_from = state_name, values_from = dem)
+
+new_cd <- pres_results_by_cd %>%
+  as_tibble() %>%
+  filter(state_abb %in% c("ME", "NE")) %>%
+  mutate(state_abbr = paste0(state_abb, "-", district)) %>%
+  distinct(Year = year, state_abbr, dem) %>%
+  pivot_wider(names_from = state_abbr, values_from = dem,
+              values_fn = mean)
+
+new_results <- full_join(new_states, new_cd, by = "Year")
+
+state_order <- sort(states$state_name)
+
+dem_history <- bind_rows(historical_results, new_results) %>%
+  select(Year, !!!state_order)
+
+rho <- cov(select(dem_history, -Year), use = "complete.obs")
+
+# Simulation elections ---------------------------------------------------------
+library(mvtnorm)
+set.seed(306)
+
+sim_election <- raw_data %>%
+  arrange(model, state_name) %>%
+  nest(forecast = -model) %>%
+  mutate(
+    sim_elections = map(forecast,
+                        function(f, mat) {
+                          f <- f %>%
+                            mutate(var = biden * (1 - biden))
+                          cur_prob <- pull(f, biden)
+                          cur_var <- pull(f, var)
+                          diag(mat) <- cur_var
+                          sim <- rmvnorm(n = 1000, mean = cur_prob,
+                                         sigma = mat)
+                          colnames(sim) <- f$state_name
+                          sim %>%
+                            as_tibble() %>%
+                            rowid_to_column(var = "sim") %>%
+                            pivot_longer(cols = -sim, names_to = "state_name",
+                                         values_to = "sim_val") %>%
+                            mutate(biden_win = case_when(sim_val >= 0.5 ~ 1L,
+                                                         TRUE ~ 0L)) %>%
+                            select(-sim_val)
+                        },
+                        mat = rho),
+    sim_summary = map2(forecast, sim_elections,
+                       function(f, s) {
+                         sim_info <- s %>%
+                           rename(biden_sim = biden_win) %>%
+                           left_join(select(f, state_name, ec_votes, biden_win),
+                                     by = "state_name")
+                         
+                         sim_info %>%
+                           group_by(sim) %>%
+                           mutate(won_vote = biden_sim * ec_votes,
+                                  incorrect = biden_sim != biden_win) %>%
+                           summarize(biden_ec = sum(won_vote),
+                                     incorrect_picks = sum(incorrect),
+                                     .groups = "drop")
+                       }),
+    ppp = map2(model, sim_summary,
+              function(m, s, real) {
+                obs_ec <- real %>%
+                  filter(model == m) %>%
+                  pull(biden_ec)
+                obs_incorrect <- real %>%
+                  filter(model == m) %>%
+                  pull(incorrect_picks)
+                
+                tibble(ec_ppp = mean(s$biden_ec > obs_ec),
+                       ip_ppp = mean(s$incorrect_picks > obs_incorrect))
+              },
+              real = real_election))
+```
+
+```{r ec-expected, eval = FALSE}
+library(ggtext)
+
+sim_election %>%
+  filter(model != "2016 Map") %>%
+  select(model, sim_summary, ppp) %>%
+  unnest(ppp) %>%
+  mutate(label = glue::glue("{model}<br><span style = 'font-size:7.5pt'>*p* = {ratlas::fmt_digits(ec_ppp, 3)}</span>")) %>%
+  select(label, sim_summary) %>%
+  unnest(sim_summary) %>%
+  ggplot(aes(x = biden_ec)) +
+  facet_wrap(~label, ncol = 4) +
+  geom_histogram(binwidth = 10, alpha = 0.9) +
+  geom_vline(data = real_election,
+             aes(xintercept = biden_ec),
+             color = palette_wjake[1], linetype = "solid", size = 1) +
+  geom_point(aes(x = 300, y = 0, color = "Observed Electoral Votes"),
+             alpha = 0) +
+  labs(x = "Biden's Electoral Votes", y = "Simulations", color = NULL,
+       title = "Expected Electoral College Votes for Biden",
+       subtitle = "Most forecasts overestimated Biden's electoral votes",
+       caption = "Plot: @wjakethompson") +
+  theme(strip.text = element_markdown(size = rel(0.7)),
+        plot.caption = element_text(face = "plain"),
+        plot.subtitle = element_text(margin = margin(0, 0, 5, 0)),
+        axis.text.x = element_text(size = rel(0.7)),
+        axis.text.y = element_text(size = rel(0.7)),
+        panel.spacing.y = unit(1, "lines"),
+        panel.spacing.x = unit(1, "lines")) +
+  guides(color = guide_legend(override.aes = list(shape = 15, size = 3,
+                                                  alpha = 1))) -> p
+
+ggsave2(p, knitr::fig_path(".png"), width = 6, height = 6)
+```
+
+</details>
+
+![Expected electoral votes for each forecast](index_files/figure-html/ec-expected-1.png){width=80%}
+
