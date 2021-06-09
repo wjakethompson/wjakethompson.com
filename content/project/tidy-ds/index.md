@@ -1,6 +1,6 @@
 ---
 title: Tidy Data Science
-summary: Introducing the basics of data science in R using the tidyverse
+summary: Introducing the basics of data science in R using the tidyverse and tidymodels
 abstract: ""
 date: "2019-05-01T00:00:00Z"
 image:
@@ -11,6 +11,10 @@ links:
   icon_pack: fas
   name: Summer Statistical Institute 2019
   url: https://tidy-ds.wjakethompson.com
+- icon: door-open
+  icon_pack: fas
+  name: Summer Research Methods Camp 2021
+  url: https://tidyds-2021.wjakethompson.com
 
 categories:
 - workshop
