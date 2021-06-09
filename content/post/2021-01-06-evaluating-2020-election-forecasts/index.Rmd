@@ -1,7 +1,7 @@
 ---
 title: Evaluating 2020 Election Forecasts
 author: Jake Thompson
-date: '2021-01-06'
+date: '2021-01-20'
 output:
   blogdown::html_page:
     fig_caption: false
@@ -38,7 +38,7 @@ wjake::set_theme(base_family = "Source Sans Pro", d_scale = "wjake",
                  plot_margin = margin(10, 10, 10, 10))
 ```
 
-After two very long months, the 2020 presidential election finally comes to a close today as congress is expected to certify the electoral college results. To celebrate, I thought I'd look back at the many election forecasts we had in 2020 to see which forecast performed the best, given the results we now have. To do this, we'll look at two outcomes: prediction accuracy and model accuracy. But first, the data!
+After four very long years, the `r emo::ji("orange")` presidency finally comes to a close today as Joe Biden and Kamala Harris are inagurated as the President and Vice President. To celebrate, I thought I'd look back at the many election forecasts we had in 2020 to see which forecast performed the best, given the results we now have. To do this, we'll look at two outcomes: prediction accuracy and model accuracy. But first, the data!
 
 ## The Forecasts
 
