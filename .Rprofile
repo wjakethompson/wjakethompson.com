@@ -16,5 +16,5 @@ options(
   blogdown.hugo.version = "0.71.1",
   blogdown.serve_site.startup = FALSE,
   blogdown.knit.on_save = FALSE,
-  blogdown.files_filter = blogdown:::md5sum_filter
+  blogdown.files_filter = blogdown:::filter_md5sum
 )
