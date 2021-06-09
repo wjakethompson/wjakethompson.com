@@ -1,0 +1,817 @@
+---
+title: Evaluating 2020 Election Forecasts
+author: Jake Thompson
+date: '2021-01-06'
+output:
+  blogdown::html_page:
+    fig_caption: false
+categories:
+  - rstats
+tags:
+  - politics
+slug: evaluating-2020-election-forecasts
+authors: [wjake]
+summary: 'A summary...'
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+---
+
+<script src="{{< blogdown/postref >}}index_files/header-attrs/header-attrs.js"></script>
+
+
+<p>After two very long months, the 2020 presidential election finally comes to a close today as congress is expected to certify the electoral college results. To celebrate, I thought I’d look back at the many election forecasts we had in 2020 to see which forecast performed the best, given the results we now have. To do this, we’ll look at two outcomes: prediction accuracy and model accuracy. But first, the data!</p>
+<div id="the-forecasts" class="section level2">
+<h2>The Forecasts</h2>
+<p>There were so. many. forecasts. I tried my best to gather as many as I could prior to election day. Ultimately, here are the forecasts I was able to pull probabilities of each candidate winning from for each state.</p>
+<ul>
+<li><a href="https://forecast.decisiondeskhq.com/president">Decision Desk HQ</a></li>
+<li><a href="https://splittingamerica.neocities.org/new.html">Drord Mapmaking</a></li>
+<li><a href="https://projects.economist.com/us-2020-forecast/president">Economist</a></li>
+<li><a href="https://electoralpolls.com/">Electoral Polls</a></li>
+<li><a href="https://projects.fivethirtyeight.com/2020-election-forecast/">FiveThirtyEight</a></li>
+<li><a href="https://projects.jhkforecasts.com/presidential-forecast/">JHK Forecasts</a></li>
+<li><a href="https://leantossup.ca/us-presidency/">Lean Tossup</a></li>
+<li><a href="https://www.newstatesman.com/international/2020/11/us-2020-presidential-election-forecast-model-will-donald-trump-or-joe-biden">New Statesman</a></li>
+<li><a href="http://www.pluralvote.com/article/2020-forecast/">Plural Vote</a></li>
+<li><a href="https://www.predictit.org/markets/13/Prez-Election">PredictIt</a></li>
+<li><a href="https://election.princeton.edu/for-fellow-geeks/">Princeton Election Consortium</a></li>
+<li><a href="https://www.ourprogress.org/forecast">Progress Campaign</a></li>
+<li><a href="https://www.racetothewh.com/president">Race to the White House</a></li>
+<li><a href="https://reedforecasts.com/">Reed Forecasts</a></li>
+<li><a href="https://thecycle.news/news/september-2020-election-update">The Cycle</a></li>
+</ul>
+<p>I also pulled the 2016 map to use as a baseline measure. All of the data is available in a Google sheet <a href="https://docs.google.com/spreadsheets/d/1CpMPWCHLfwByucZz9fzIH8ivHnIcfmrYUjKQ1tFTbFU/">here</a>. In the Google sheet, the probabilities indicate the probability that Joe Biden would win each state.</p>
+<p>A few of the forecasts (including notably, the Economist) did not forecast the congressional districts in Nebraska and Maine separately from the whole state. Thus, for those forecasts, I used the statewide probability for each of the individual congressional districts as well, as that was the probability those forecasts assigned to each candidate for winning <em>all</em> electoral college votes from the state.</p>
+</div>
+<div id="prediction-accuracy" class="section level2">
+<h2>Prediction Accuracy</h2>
+<p>We’re defining prediction accuracy as how close the estimated probabilities were to the observed outcome. We can assess this through three measures: log-loss, Brier Score, and a weighted Brier Score. All of these measures evaluate how close the probability was to the observed event. The <a href="https://www.kaggle.com/dansbecker/what-is-log-loss">log-loss</a> is very common classification metric and is defined as</p>
+<p><span class="math display" id="eq:logloss">\[\begin{equation}
+  \text{Log-Loss}=-\frac{1}{P}\sum_{i=1}^Py_i\log(\hat{y}_i) + (1 - y_i)\log(1-\hat{y}_i)
+  \tag{1}
+\end{equation}\]</span></p>
+<p>In Equation <a href="#eq:logloss">(1)</a>, <span class="math inline">\(P\)</span> is the total number of predictions, <span class="math inline">\(y_i\)</span> is the observed outcome (i.e., 0 or 1), and <span class="math inline">\(\hat{y}_i\)</span> is the estimated probability of the event occurring. When the event occurs (i.e., <span class="math inline">\(y_i = 1\)</span>), we add the log of the probability of the event in our sum. Conversely, when the event doesn’t occur (i.e., <span class="math inline">\(y_i = 0\)</span>) we add the log of the probability of the event <em>not</em> occurring, that is, <span class="math inline">\(1 - \hat{y}_i\)</span>. The lower the probability of the observed outcome, the larger the term will be that gets included in the. We then take the average to get the average log probability of the observed events. Finally, because all the log probabilities are negative, we multiply by -1 so that everything is positive and smaller scores relate to smaller prediction errors.</p>
+<p>The second measure is the <a href="https://en.wikipedia.org/wiki/Brier_score">Brier score</a>. This measure is a little easier to calculate. Essentially, the Brier score is the mean squared error of predictions.</p>
+<p><span class="math display" id="eq:brier">\[\begin{equation}
+  \text{Brier Score} = \frac{1}{P}\sum_{i=1}^P(\hat{y}_i - y_i)^2
+  \tag{2}
+\end{equation}\]</span></p>
+<p>Unlike, the log-loss, the penalty for the Brier score is almost linear. Below we can see that the log-loss penalty increases exponentially for observed events with a low probability, whereas the Brier penalty increases much more slowly. Therefore, the Brier Score is more forgiving of a forecast that estimated low probabilities for events that ended up happening.</p>
+<details>
+<summary>
+Code to reproduce
+</summary>
+<pre class="r"><code>tibble(prob = seq(0, 1, by = 0.01)) %&gt;%
+  mutate(log_loss = -1 * log(prob),
+         brier = (prob - 1) ^ 2,
+         log_loss = case_when(is.infinite(log_loss) ~ NA_real_,
+                              TRUE ~ log_loss)) %&gt;%
+  pivot_longer(cols = c(log_loss, brier), names_to = &quot;measure&quot;,
+               values_to = &quot;penalty&quot;) %&gt;%
+  ggplot(aes(x = prob, y = penalty)) +
+  geom_line(aes(color = measure), na.rm = TRUE) +
+  scale_color_wjake(labels = c(&quot;Brier Score&quot;, &quot;Log-Loss&quot;)) +
+  labs(x = &quot;Event Probability&quot;, y = &quot;Penalty&quot;, color = NULL,
+       title = &quot;Penalty Score for Observed Event&quot;,
+       subtitle = &quot;Log-loss penalty increases more dramatically&quot;,
+       caption = &quot;Plot: @wjakethompson&quot;) +
+  theme(plot.caption = element_text(face = &quot;plain&quot;)) -&gt; p
+
+ggsave2(p, knitr::fig_path(&quot;.png&quot;), width = 6, height = 6)</code></pre>
+</details>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/penalty-comp-1.png" style="width:80.0%" alt="Penalty scores across a range of probabilities" /></p>
+<p>A perfect prediction (e.g., a probability of 1.0 and the event actually occurring) would result in a Brier score of 0, as <span class="math inline">\(y_i\)</span> and <span class="math inline">\(\hat{y}_i\)</span> are the same. Conversely, is 1 when the probability of an event is 1.0 and the even doesn’t occur, or the reverse where the probability is 0.0 and the event does occur. As with the log-loss, we take the average of all the error terms to get the overall Brier score.</p>
+<p>The final measure is a weighted Brier score. The idea here is that not all predictions are created equal. In the United States’ election system, states have different numbers of electoral votes. Therefore, we should weight our predictions based on their influence on the overall outcome. For example, suppose a forecast gave Donald Trump a 70% chance of winning both Vermont and California (purposefully choosing outrageous examples). In reality, Trump won neither. Should an equal penalty be applied for each state? Vermont has only 3 electoral votes, whereas California has 55, more than any other state. Therefore, getting California wrong has a much larger impact on determining the winner of the presidential race. To account for this, we can weight the Brier score by the number of electoral votes for each state.</p>
+<p><span class="math display" id="eq:w-brier">\[\begin{equation}
+  \text{Weighted Brier Score} = \frac{1}{\sum_{i=1}^PEV_i}\sum_{i = 1}^PEV_i(\hat{y}_i - y_i)^2
+  \tag{3}
+\end{equation}\]</span></p>
+<p>In Equation <a href="#eq:w-brier">(3)</a>, <span class="math inline">\(EV_i\)</span> is the number of electoral votes for the given prediction. Thus, instead of taking a pure average of the squared errors, we are taking a weighted average. We multiply each squared error by the number of electoral votes associated with the prediction, and then divide to sum of the weighted errors by the total weight, or the total number of electoral college votes.</p>
+<p>Using this formulas, we can calculate the prediction accuracy measures for each forecast. These results are summarized in the table below.</p>
+<details>
+<summary>
+Code to reproduce
+</summary>
+<pre class="r"><code>library(tidyverse)
+library(here)
+library(fs)
+
+results_2020 &lt;-
+  here(&quot;content&quot;, &quot;post&quot;, &quot;2021-01-06-evaluating-2020-election-forecasts&quot;,
+       &quot;data&quot;, &quot;results.csv&quot;) %&gt;%
+  read_csv(col_types = cols())
+
+ev_2020 &lt;-
+  here(&quot;content&quot;, &quot;post&quot;, &quot;2021-01-06-evaluating-2020-election-forecasts&quot;,
+       &quot;data&quot;, &quot;electoral-votes.csv&quot;) %&gt;%
+  read_csv(col_types = cols())
+
+raw_data &lt;-
+  dir_ls(here(&quot;content&quot;, &quot;post&quot;, &quot;2021-01-06-evaluating-2020-election-forecasts&quot;,
+            &quot;data&quot;, &quot;forecasts&quot;)) %&gt;%
+  map_dfr(read_csv, col_types = cols()) %&gt;%
+  full_join(ev_2020, by = c(&quot;state_name&quot;, &quot;state_abbr&quot;)) %&gt;%
+  full_join(results_2020, by = c(&quot;state_name&quot;, &quot;state_abbr&quot;))
+
+pred_acc_results &lt;- raw_data %&gt;%
+  mutate(biden = case_when(biden == 0 ~ 0.00001,
+                           biden == 1 ~ 0.99999,
+                           TRUE ~ biden)) %&gt;%
+  group_by(model) %&gt;%
+  summarize(log_loss = (-1 / n()) *
+              sum((biden_win * log(biden)) + (1 - biden_win) * log(1 - biden)),
+            brier = (1 / n()) * sum((biden - biden_win) ^ 2),
+            w_brier = (1 / sum(ec_votes)) * sum(ec_votes * ((biden - biden_win) ^ 2)),
+            .groups = &quot;drop&quot;)
+
+pred_acc_results
+#&gt; # A tibble: 16 x 4
+#&gt;    model                   log_loss  brier w_brier
+#&gt;    &lt;chr&gt;                      &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt;
+#&gt;  1 2016 Map                   1.23  0.107   0.138 
+#&gt;  2 Decision Desk HQ           0.160 0.0456  0.0701
+#&gt;  3 Drord Mapmaking            0.137 0.0461  0.0789
+#&gt;  4 Economist                  0.385 0.0692  0.0739
+#&gt;  5 Electoral Polls            0.116 0.0390  0.0600
+#&gt;  6 FiveThirtyEight            0.137 0.0400  0.0663
+#&gt;  7 JHK                        0.118 0.0394  0.0661
+#&gt;  8 Lean Tossup                0.170 0.0606  0.117 
+#&gt;  9 New Statesman              0.236 0.0679  0.0724
+#&gt; 10 Plural Vote                0.133 0.0417  0.0616
+#&gt; 11 PredictIt                  0.158 0.0385  0.0549
+#&gt; 12 Princeton                  0.123 0.0407  0.0636
+#&gt; 13 Progress Campaign          0.149 0.0449  0.0727
+#&gt; 14 Race to the White House    0.132 0.0456  0.0785
+#&gt; 15 Reed                       0.189 0.0555  0.0731
+#&gt; 16 The Cycle                  0.134 0.0410  0.0816</code></pre>
+<pre class="r"><code>library(gt)
+
+pred_acc_results %&gt;%
+  mutate(log_loss_rank = rank(log_loss),
+         brier_rank = rank(brier),
+         w_brier_rank = rank(w_brier),
+         avg_rank = (log_loss_rank + brier_rank + w_brier_rank) / 3,
+         across(c(log_loss, brier, w_brier), ratlas::fmt_digits, digits = 3),
+         across(c(log_loss, brier, w_brier), as.factor),
+         log_loss = fct_reorder(log_loss, log_loss_rank),
+         brier = fct_reorder(brier, brier_rank),
+         w_brier = fct_reorder(w_brier, w_brier_rank)) %&gt;%
+  arrange(avg_rank) %&gt;%
+  select(-avg_rank) %&gt;%
+  mutate(across(ends_with(&quot;_rank&quot;), ~case_when(.x &lt; 10 ~ paste0(&quot; &quot;, .x),
+                                               TRUE ~ paste0(.x)))) %&gt;%
+  gt() %&gt;%
+  gt_theme_wjake() %&gt;%
+  cols_label(model = &quot;Forecast&quot;, log_loss = &quot;Log Loss&quot;, brier = &quot;Brier Score&quot;,
+             w_brier = &quot;Weighted Brier&quot;) %&gt;%
+  tab_header(
+    title = md(&quot;**Prediction Accuracy for 2020 Election Forecasts**&quot;)
+  ) %&gt;%
+  tab_source_note(source_note = &quot;TABLE: @WJAKETHOMPSON&quot;) %&gt;%
+  cols_merge(columns = vars(log_loss, log_loss_rank),
+             pattern = &quot;{1}&amp;thinsp;&lt;sup&gt;{2}&lt;/sup&gt;&quot;) %&gt;%
+  cols_merge(columns = vars(brier, brier_rank),
+             pattern = &quot;{1}&amp;thinsp;&lt;sup&gt;{2}&lt;/sup&gt;&quot;) %&gt;%
+  cols_merge(columns = vars(w_brier, w_brier_rank),
+             pattern = &quot;{1}&amp;thinsp;&lt;sup&gt;{2}&lt;/sup&gt;&quot;) %&gt;%
+  tab_style(style = cell_text(font = &quot;Source Code Pro&quot;),
+            locations = cells_body(
+              columns = vars(log_loss, brier, w_brier)
+            )) %&gt;%
+  cols_width(vars(model) ~ px(200),
+             vars(log_loss, brier, w_brier) ~ px(100)) %&gt;%
+  data_color(
+    columns = vars(log_loss, brier, w_brier),
+    colors = scales::col_factor(
+      palette = ramp_blue(seq(0.1, 0.9, length.out = 16)),
+      domain = NULL
+    )
+  ) -&gt; gt_pred_acc</code></pre>
+</details>
+<p><br />
+</p>
+<style>@import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+html {
+  font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#geicuobmnm .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #F0F0F0;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#geicuobmnm .gt_heading {
+  background-color: #F0F0F0;
+  text-align: left;
+  border-bottom-color: #F0F0F0;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#geicuobmnm .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-bottom-color: #F0F0F0;
+  border-bottom-width: 0;
+}
+
+#geicuobmnm .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 4px;
+  border-top-color: #F0F0F0;
+  border-top-width: 0;
+}
+
+#geicuobmnm .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#geicuobmnm .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 3px;
+  border-top-color: #F0F0F0;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#geicuobmnm .gt_col_heading {
+  color: #333333;
+  background-color: #F0F0F0;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#geicuobmnm .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #F0F0F0;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#geicuobmnm .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#geicuobmnm .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#geicuobmnm .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#geicuobmnm .gt_group_heading {
+  padding: 8px;
+  color: #333333;
+  background-color: #F0F0F0;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#geicuobmnm .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #F0F0F0;
+  font-size: 80%;
+  font-weight: bolder;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#geicuobmnm .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#geicuobmnm .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#geicuobmnm .gt_row {
+  padding-top: 3px;
+  padding-bottom: 3px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#geicuobmnm .gt_stub {
+  color: #333333;
+  background-color: #F0F0F0;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 12px;
+}
+
+#geicuobmnm .gt_summary_row {
+  color: #333333;
+  background-color: #F0F0F0;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#geicuobmnm .gt_first_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+}
+
+#geicuobmnm .gt_grand_summary_row {
+  color: #333333;
+  background-color: #F0F0F0;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#geicuobmnm .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#geicuobmnm .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#geicuobmnm .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#geicuobmnm .gt_footnotes {
+  color: #333333;
+  background-color: #F0F0F0;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#geicuobmnm .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding: 4px;
+}
+
+#geicuobmnm .gt_sourcenotes {
+  color: #333333;
+  background-color: #F0F0F0;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 0px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 0px;
+  border-right-color: #D3D3D3;
+}
+
+#geicuobmnm .gt_sourcenote {
+  font-size: 12px;
+  padding: 10px;
+}
+
+#geicuobmnm .gt_left {
+  text-align: left;
+}
+
+#geicuobmnm .gt_center {
+  text-align: center;
+}
+
+#geicuobmnm .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#geicuobmnm .gt_font_normal {
+  font-weight: normal;
+}
+
+#geicuobmnm .gt_font_bold {
+  font-weight: bold;
+}
+
+#geicuobmnm .gt_font_italic {
+  font-style: italic;
+}
+
+#geicuobmnm .gt_super {
+  font-size: 65%;
+}
+
+#geicuobmnm .gt_footnote_marks {
+  font-style: italic;
+  font-size: 65%;
+}
+</style>
+<div id="geicuobmnm" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;"><table class="gt_table" style="table-layout: fixed;; width: 0px">
+  <colgroup>
+    <col style="width:200px;"/>
+    <col style="width:100px;"/>
+    <col style="width:100px;"/>
+    <col style="width:100px;"/>
+  </colgroup>
+  <thead class="gt_header">
+    <tr>
+      <th colspan="4" class="gt_heading gt_title gt_font_normal gt_bottom_border" style><strong>Prediction Accuracy for 2020 Election Forecasts</strong></th>
+    </tr>
+    
+  </thead>
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" style="text-align: center; vertical-align: middle; font-weight: bold; border-bottom-width: 3px; border-bottom-style: solid; border-bottom-color: black;">Forecast</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" style="text-align: center; vertical-align: middle; font-weight: bold; border-bottom-width: 3px; border-bottom-style: solid; border-bottom-color: black;">Log Loss</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" style="text-align: center; vertical-align: middle; font-weight: bold; border-bottom-width: 3px; border-bottom-style: solid; border-bottom-color: black;">Brier Score</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" style="text-align: center; vertical-align: middle; font-weight: bold; border-bottom-width: 3px; border-bottom-style: solid; border-bottom-color: black;">Weighted Brier</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td class="gt_row gt_left" style="background-color: #F0F0F0;">Electoral Polls</td>
+<td class="gt_row gt_center" style="background-color: #E5F5F7; font-family: 'Source Code Pro'; color: #000000;">0.116&thinsp;<sup> 1</sup></td>
+<td class="gt_row gt_center" style="background-color: #D2EEF2; font-family: 'Source Code Pro'; color: #000000;">0.039&thinsp;<sup> 2</sup></td>
+<td class="gt_row gt_center" style="background-color: #D5EFF3; font-family: 'Source Code Pro'; color: #000000;">0.060&thinsp;<sup> 2</sup></td></tr>
+    <tr><td class="gt_row gt_left" style="background-color: #F0F0F0;">JHK</td>
+<td class="gt_row gt_center" style="background-color: #D6F0F3; font-family: 'Source Code Pro'; color: #000000;">0.118&thinsp;<sup> 2</sup></td>
+<td class="gt_row gt_center" style="background-color: #D2EEF2; font-family: 'Source Code Pro'; color: #000000;">0.039&thinsp;<sup> 3</sup></td>
+<td class="gt_row gt_center" style="background-color: #A6DDE6; font-family: 'Source Code Pro'; color: #000000;">0.066&thinsp;<sup> 5</sup></td></tr>
+    <tr><td class="gt_row gt_left" style="background-color: #F0F0F0;">PredictIt</td>
+<td class="gt_row gt_center" style="background-color: #71C9D7; font-family: 'Source Code Pro'; color: #000000;">0.158&thinsp;<sup>10</sup></td>
+<td class="gt_row gt_center" style="background-color: #E5F5F7; font-family: 'Source Code Pro'; color: #000000;">0.038&thinsp;<sup> 1</sup></td>
+<td class="gt_row gt_center" style="background-color: #E5F5F7; font-family: 'Source Code Pro'; color: #000000;">0.055&thinsp;<sup> 1</sup></td></tr>
+    <tr><td class="gt_row gt_left" style="background-color: #F0F0F0;">Princeton</td>
+<td class="gt_row gt_center" style="background-color: #C8EAEF; font-family: 'Source Code Pro'; color: #000000;">0.123&thinsp;<sup> 3</sup></td>
+<td class="gt_row gt_center" style="background-color: #AEE0E8; font-family: 'Source Code Pro'; color: #000000;">0.041&thinsp;<sup> 5</sup></td>
+<td class="gt_row gt_center" style="background-color: #B6E3EA; font-family: 'Source Code Pro'; color: #000000;">0.064&thinsp;<sup> 4</sup></td></tr>
+    <tr><td class="gt_row gt_left" style="background-color: #F0F0F0;">Plural Vote</td>
+<td class="gt_row gt_center" style="background-color: #ABDFE7; font-family: 'Source Code Pro'; color: #000000;">0.133&thinsp;<sup> 5</sup></td>
+<td class="gt_row gt_center" style="background-color: #9BD9E2; font-family: 'Source Code Pro'; color: #000000;">0.042&thinsp;<sup> 7</sup></td>
+<td class="gt_row gt_center" style="background-color: #C6E9EF; font-family: 'Source Code Pro'; color: #000000;">0.062&thinsp;<sup> 3</sup></td></tr>
+    <tr><td class="gt_row gt_left" style="background-color: #F0F0F0;">FiveThirtyEight</td>
+<td class="gt_row gt_center" style="background-color: #8DD4DE; font-family: 'Source Code Pro'; color: #000000;">0.137&thinsp;<sup> 8</sup></td>
+<td class="gt_row gt_center" style="background-color: #C0E7ED; font-family: 'Source Code Pro'; color: #000000;">0.040&thinsp;<sup> 4</sup></td>
+<td class="gt_row gt_center" style="background-color: #A6DDE6; font-family: 'Source Code Pro'; color: #000000;">0.066&thinsp;<sup> 6</sup></td></tr>
+    <tr><td class="gt_row gt_left" style="background-color: #F0F0F0;">Race to the White House</td>
+<td class="gt_row gt_center" style="background-color: #B9E5EB; font-family: 'Source Code Pro'; color: #000000;">0.132&thinsp;<sup> 4</sup></td>
+<td class="gt_row gt_center" style="background-color: #76CBD8; font-family: 'Source Code Pro'; color: #000000;">0.046&thinsp;<sup> 9</sup></td>
+<td class="gt_row gt_center" style="background-color: #58C0CF; font-family: 'Source Code Pro'; color: #000000;">0.078&thinsp;<sup>12</sup></td></tr>
+    <tr><td class="gt_row gt_left" style="background-color: #F0F0F0;">Progress Campaign</td>
+<td class="gt_row gt_center" style="background-color: #7FCEDA; font-family: 'Source Code Pro'; color: #000000;">0.149&thinsp;<sup> 9</sup></td>
+<td class="gt_row gt_center" style="background-color: #88D2DD; font-family: 'Source Code Pro'; color: #000000;">0.045&thinsp;<sup> 8</sup></td>
+<td class="gt_row gt_center" style="background-color: #77CCD9; font-family: 'Source Code Pro'; color: #000000;">0.073&thinsp;<sup> 9</sup></td></tr>
+    <tr><td class="gt_row gt_left" style="background-color: #F0F0F0;">The Cycle</td>
+<td class="gt_row gt_center" style="background-color: #9CD9E3; font-family: 'Source Code Pro'; color: #000000;">0.134&thinsp;<sup> 6</sup></td>
+<td class="gt_row gt_center" style="background-color: #AEE0E8; font-family: 'Source Code Pro'; color: #000000;">0.041&thinsp;<sup> 6</sup></td>
+<td class="gt_row gt_center" style="background-color: #39B4C6; font-family: 'Source Code Pro'; color: #000000;">0.082&thinsp;<sup>14</sup></td></tr>
+    <tr><td class="gt_row gt_left" style="background-color: #F0F0F0;">Decision Desk HQ</td>
+<td class="gt_row gt_center" style="background-color: #62C4D2; font-family: 'Source Code Pro'; color: #000000;">0.160&thinsp;<sup>11</sup></td>
+<td class="gt_row gt_center" style="background-color: #76CBD8; font-family: 'Source Code Pro'; color: #000000;">0.046&thinsp;<sup>10</sup></td>
+<td class="gt_row gt_center" style="background-color: #96D7E1; font-family: 'Source Code Pro'; color: #000000;">0.070&thinsp;<sup> 7</sup></td></tr>
+    <tr><td class="gt_row gt_left" style="background-color: #F0F0F0;">Drord Mapmaking</td>
+<td class="gt_row gt_center" style="background-color: #8DD4DE; font-family: 'Source Code Pro'; color: #000000;">0.137&thinsp;<sup> 7</sup></td>
+<td class="gt_row gt_center" style="background-color: #76CBD8; font-family: 'Source Code Pro'; color: #000000;">0.046&thinsp;<sup>11</sup></td>
+<td class="gt_row gt_center" style="background-color: #48BACB; font-family: 'Source Code Pro'; color: #000000;">0.079&thinsp;<sup>13</sup></td></tr>
+    <tr><td class="gt_row gt_left" style="background-color: #F0F0F0;">Reed</td>
+<td class="gt_row gt_center" style="background-color: #45B8CA; font-family: 'Source Code Pro'; color: #000000;">0.189&thinsp;<sup>13</sup></td>
+<td class="gt_row gt_center" style="background-color: #64C4D3; font-family: 'Source Code Pro'; color: #000000;">0.055&thinsp;<sup>12</sup></td>
+<td class="gt_row gt_center" style="background-color: #77CCD9; font-family: 'Source Code Pro'; color: #000000;">0.073&thinsp;<sup>10</sup></td></tr>
+    <tr><td class="gt_row gt_left" style="background-color: #F0F0F0;">New Statesman</td>
+<td class="gt_row gt_center" style="background-color: #36B3C6; font-family: 'Source Code Pro'; color: #000000;">0.236&thinsp;<sup>14</sup></td>
+<td class="gt_row gt_center" style="background-color: #3EB6C8; font-family: 'Source Code Pro'; color: #000000;">0.068&thinsp;<sup>14</sup></td>
+<td class="gt_row gt_center" style="background-color: #87D1DC; font-family: 'Source Code Pro'; color: #000000;">0.072&thinsp;<sup> 8</sup></td></tr>
+    <tr><td class="gt_row gt_left" style="background-color: #F0F0F0;">Lean Tossup</td>
+<td class="gt_row gt_center" style="background-color: #53BECE; font-family: 'Source Code Pro'; color: #000000;">0.170&thinsp;<sup>12</sup></td>
+<td class="gt_row gt_center" style="background-color: #50BDCD; font-family: 'Source Code Pro'; color: #000000;">0.061&thinsp;<sup>13</sup></td>
+<td class="gt_row gt_center" style="background-color: #29AEC2; font-family: 'Source Code Pro'; color: #000000;">0.117&thinsp;<sup>15</sup></td></tr>
+    <tr><td class="gt_row gt_left" style="background-color: #F0F0F0;">Economist</td>
+<td class="gt_row gt_center" style="background-color: #28ADC2; font-family: 'Source Code Pro'; color: #000000;">0.385&thinsp;<sup>15</sup></td>
+<td class="gt_row gt_center" style="background-color: #2CAFC3; font-family: 'Source Code Pro'; color: #000000;">0.069&thinsp;<sup>15</sup></td>
+<td class="gt_row gt_center" style="background-color: #68C6D4; font-family: 'Source Code Pro'; color: #000000;">0.074&thinsp;<sup>11</sup></td></tr>
+    <tr><td class="gt_row gt_left" style="border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: transparent; background-color: #F0F0F0;">2016 Map</td>
+<td class="gt_row gt_center" style="border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: transparent; background-color: #19A8BE; font-family: 'Source Code Pro'; color: #000000;">1.234&thinsp;<sup>16</sup></td>
+<td class="gt_row gt_center" style="border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: transparent; background-color: #19A8BE; font-family: 'Source Code Pro'; color: #000000;">0.107&thinsp;<sup>16</sup></td>
+<td class="gt_row gt_center" style="border-bottom-width: 2px; border-bottom-style: solid; border-bottom-color: transparent; background-color: #19A8BE; font-family: 'Source Code Pro'; color: #000000;">0.138&thinsp;<sup>16</sup></td></tr>
+  </tbody>
+  <tfoot class="gt_sourcenotes">
+    <tr>
+      <td class="gt_sourcenote" colspan="4">TABLE: @WJAKETHOMPSON</td>
+    </tr>
+  </tfoot>
+  
+</table></div>
+<p>Overall, the Electoral Polls forecast had the best accuracy. The biggest surprise to me was that the Economist forecast came in last, only beating the baseline 2016 map. What what gives? Let’s compare the Economist forecast to the FiveThirtyEight forecast, which came in close the the middle of the road. The two biggest misses for the Economist were the congressional districts from Nebraska and Maine that went in the opposite direction of the overall state. Maybe this isn’t fair since the Economist didn’t actually forecast the individual congressional districts, but on the other hand, the statewide forecast from the Economist included all of the electoral votes from that state, including the congressional district votes. The other two largest penalties came from North Carolina and Florida. In North Carolina, the Economist forecast gave Trump a 30% chance of winning, compared to 36% in the FiveThirtyEight model. Similarly in Florida, the Economist model gave Trump only a 20% chance of winning, compared to 31% in the FiveThirtyEight model. Trump ended up winning both states, so there were smaller penalties for FiveThirtyEight since that model gave Trump a greater chance of winning.</p>
+<details>
+<summary>
+Code to reproduce
+</summary>
+<pre class="r"><code>library(gghighlight)
+library(ggrepel)
+
+raw_data %&gt;%
+  filter(model %in% c(&quot;Economist&quot;, &quot;FiveThirtyEight&quot;)) %&gt;%
+  mutate(biden = case_when(biden == 0 ~ 0.00001,
+                           biden == 1 ~ 0.99999,
+                           TRUE ~ biden)) %&gt;%
+  group_by(model) %&gt;%
+  mutate(log_loss_penalty = -1 *
+           ((biden_win * log(biden)) + ((1 - biden_win) * log(1 - biden))),
+         brier_penalty = (biden - biden_win) ^ 2) %&gt;%
+  pivot_wider(names_from = model,
+              values_from = c(trump, biden, log_loss_penalty, brier_penalty)) %&gt;%
+  ggplot(aes(x = brier_penalty_Economist, y = brier_penalty_FiveThirtyEight)) +
+  geom_point(aes(size = ec_votes, color = factor(biden_win)), alpha = 0.6) +
+  gghighlight(brier_penalty_Economist &gt; 0.25, label_key = state_abbr,
+              label_params = list(size = 3), use_group_by = FALSE,
+              use_direct_label = FALSE) +
+  geom_label_repel(aes(label = state_abbr, color = factor(biden_win)),
+                   size = 3, show.legend = FALSE) +
+  scale_color_manual(values = c(&quot;red&quot;, &quot;blue&quot;),
+                     labels = c(&quot;Trump&quot;, &quot;Biden&quot;),
+                     name = &quot;Winner&quot;) +
+  scale_size_area(name = &quot;Electoral Votes&quot;,
+                  limits = c(1, 55),
+                  breaks = c(1, 5, 10, 20, 40)) +
+  geom_abline(slope = 1, intercept = 0, linetype = &quot;dashed&quot;) +
+  expand_limits(x = c(0, 1), y = c(0, 1)) +
+  labs(x = &quot;Economist&quot;, y = &quot;FiveThirtyEight&quot;,
+       title = &quot;Brier Penalties for Each Prediction&quot;,
+       subtitle = &quot;Economist predictions hurt by un-forecasted congressional districts&quot;,
+       caption = &quot;Plot: @wjakethompson&quot;) +
+  guides(color = guide_legend(override.aes = list(alpha = 1, size = 2),
+                              order = 1),
+         size = guide_legend(order = 2)) +
+  theme(plot.caption = element_text(face = &quot;plain&quot;),
+        legend.box = &quot;vertical&quot;) -&gt; p
+
+ggsave2(p, knitr::fig_path(&quot;.png&quot;), width = 6, height = 6)</code></pre>
+</details>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/brier-compare-1.png" style="width:80.0%" alt="Brier penalties for Economist and FiveThirtyEight forecasts" /></p>
+</div>
+<div id="model-accuracy" class="section level2">
+<h2>Model Accuracy</h2>
+<p>For an evaluation of model accuracy, we assume that the estimated probabilities from each forecast are true. Using these probabilities, we then simulate the election hundreds or thousands of times. From each simulation, we can then calculate the number of electoral votes won by each candidate and the number of states that were picked incorrectly. Across all simulations, we can then compare the distributions of the summary statistics to the observed outcomes.</p>
+<details>
+<summary>
+Code to reproduce
+</summary>
+<pre class="r"><code># Observed results -------------------------------------------------------------
+real_election &lt;- raw_data %&gt;%
+  filter(model != &quot;2016 Map&quot;) %&gt;%
+  mutate(biden_pick = case_when(biden &gt;= 0.5 ~ 1L,
+                                TRUE ~ 0L)) %&gt;%
+  group_by(model) %&gt;%
+  summarize(biden_ec = sum(ec_votes * biden_win),
+            incorrect_picks = sum(biden_pick != biden_win))
+
+# Calculate correlations between states/CDs ------------------------------------
+library(politicaldata)
+
+states &lt;- distinct(raw_data, state_name, state_abbr)
+
+historical_results &lt;- read_csv(here(&quot;content&quot;, &quot;post&quot;,
+                                    &quot;2016-11-08-election-forecast-performance&quot;,
+                                    &quot;data&quot;, &quot;election_dem_history.csv&quot;),
+                               col_types = cols()) %&gt;%
+  arrange(Year) %&gt;%
+  filter(Year &lt; 1976) %&gt;%
+  rename(`District of Columbia` = `Washington DC`)
+
+new_states &lt;- pres_results %&gt;%
+  as_tibble() %&gt;%
+  distinct(state_abbr = state, Year = year, dem) %&gt;%
+  left_join(states, by = &quot;state_abbr&quot;) %&gt;%
+  select(-state_abbr) %&gt;%
+  pivot_wider(names_from = state_name, values_from = dem)
+
+new_cd &lt;- pres_results_by_cd %&gt;%
+  as_tibble() %&gt;%
+  filter(state_abb %in% c(&quot;ME&quot;, &quot;NE&quot;)) %&gt;%
+  mutate(state_abbr = paste0(state_abb, &quot;-&quot;, district)) %&gt;%
+  distinct(Year = year, state_abbr, dem) %&gt;%
+  pivot_wider(names_from = state_abbr, values_from = dem,
+              values_fn = mean)
+
+new_results &lt;- full_join(new_states, new_cd, by = &quot;Year&quot;)
+
+state_order &lt;- sort(states$state_name)
+
+dem_history &lt;- bind_rows(historical_results, new_results) %&gt;%
+  select(Year, !!!state_order)
+
+rho &lt;- cov(select(dem_history, -Year), use = &quot;complete.obs&quot;)
+
+# Simulation elections ---------------------------------------------------------
+library(mvtnorm)
+set.seed(306)
+
+sim_election &lt;- raw_data %&gt;%
+  arrange(model, state_name) %&gt;%
+  nest(forecast = -model) %&gt;%
+  mutate(
+    sim_elections = map(forecast,
+                        function(f, mat) {
+                          f &lt;- f %&gt;%
+                            mutate(var = biden * (1 - biden))
+                          cur_prob &lt;- pull(f, biden)
+                          cur_var &lt;- pull(f, var)
+                          diag(mat) &lt;- cur_var
+                          sim &lt;- rmvnorm(n = 1000, mean = cur_prob,
+                                         sigma = mat)
+                          colnames(sim) &lt;- f$state_name
+                          sim %&gt;%
+                            as_tibble() %&gt;%
+                            rowid_to_column(var = &quot;sim&quot;) %&gt;%
+                            pivot_longer(cols = -sim, names_to = &quot;state_name&quot;,
+                                         values_to = &quot;sim_val&quot;) %&gt;%
+                            mutate(biden_win = case_when(sim_val &gt;= 0.5 ~ 1L,
+                                                         TRUE ~ 0L)) %&gt;%
+                            select(-sim_val)
+                        },
+                        mat = rho),
+    sim_summary = map2(forecast, sim_elections,
+                       function(f, s) {
+                         sim_info &lt;- s %&gt;%
+                           rename(biden_sim = biden_win) %&gt;%
+                           left_join(select(f, state_name, ec_votes, biden_win),
+                                     by = &quot;state_name&quot;)
+                         
+                         sim_info %&gt;%
+                           group_by(sim) %&gt;%
+                           mutate(won_vote = biden_sim * ec_votes,
+                                  incorrect = biden_sim != biden_win) %&gt;%
+                           summarize(biden_ec = sum(won_vote),
+                                     incorrect_picks = sum(incorrect),
+                                     .groups = &quot;drop&quot;)
+                       }),
+    ppp = map2(model, sim_summary,
+              function(m, s, real) {
+                obs_ec &lt;- real %&gt;%
+                  filter(model == m) %&gt;%
+                  pull(biden_ec)
+                obs_incorrect &lt;- real %&gt;%
+                  filter(model == m) %&gt;%
+                  pull(incorrect_picks)
+                
+                tibble(ec_ppp = mean(s$biden_ec &gt; obs_ec),
+                       ip_ppp = mean(s$incorrect_picks &gt; obs_incorrect))
+              },
+              real = real_election))</code></pre>
+<pre class="r"><code>library(ggtext)
+
+sim_election %&gt;%
+  filter(model != &quot;2016 Map&quot;) %&gt;%
+  select(model, sim_summary, ppp) %&gt;%
+  unnest(ppp) %&gt;%
+  mutate(label = glue::glue(&quot;{model}&lt;br&gt;&lt;span style = &#39;font-size:7.5pt&#39;&gt;*p* = {ratlas::fmt_digits(ec_ppp, 3)}&lt;/span&gt;&quot;)) %&gt;%
+  select(label, sim_summary) %&gt;%
+  unnest(sim_summary) %&gt;%
+  ggplot(aes(x = biden_ec)) +
+  facet_wrap(~label, ncol = 4) +
+  geom_histogram(binwidth = 10, alpha = 0.9) +
+  geom_vline(data = real_election,
+             aes(xintercept = biden_ec),
+             color = palette_wjake[1], linetype = &quot;solid&quot;, size = 1) +
+  geom_point(aes(x = 300, y = 0, color = &quot;Observed Electoral Votes&quot;),
+             alpha = 0) +
+  labs(x = &quot;Biden&#39;s Electoral Votes&quot;, y = &quot;Simulations&quot;, color = NULL,
+       title = &quot;Expected Electoral College Votes for Biden&quot;,
+       subtitle = &quot;Most forecasts overestimated Biden&#39;s electoral votes&quot;,
+       caption = &quot;Plot: @wjakethompson&quot;) +
+  theme(strip.text = element_markdown(size = rel(0.7)),
+        plot.caption = element_text(face = &quot;plain&quot;),
+        plot.subtitle = element_text(margin = margin(0, 0, 5, 0)),
+        axis.text.x = element_text(size = rel(0.7)),
+        axis.text.y = element_text(size = rel(0.7)),
+        panel.spacing.y = unit(1, &quot;lines&quot;),
+        panel.spacing.x = unit(1, &quot;lines&quot;)) +
+  guides(color = guide_legend(override.aes = list(shape = 15, size = 3,
+                                                  alpha = 1))) -&gt; p
+
+ggsave2(p, knitr::fig_path(&quot;.png&quot;), width = 6, height = 6)</code></pre>
+</details>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/ec-expected-1.png" style="width:80.0%" alt="Expected electoral votes for each forecast" /></p>
+</div>

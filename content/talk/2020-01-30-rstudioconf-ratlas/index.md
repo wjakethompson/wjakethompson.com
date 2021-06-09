@@ -2,7 +2,7 @@
 title: Branding and Packaging Reports with R Markdown
 draft: false
 authors:
-  - W. Jake Thompson
+  - wjake
   - Noelle Pablo
   - Jeffrey Hoover
 event: 'rstudio::conf(2020)'

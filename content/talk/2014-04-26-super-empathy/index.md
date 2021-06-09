@@ -2,7 +2,7 @@
 title: Dissociating cognitive and affective empathy
 draft: false
 authors:
-  - W. Jake Thompson
+  - wjake
   - Evangelia G. Chrysikou
 event: University of Kansas Undergraduate Research Symposium
 location: Lawrence, KS

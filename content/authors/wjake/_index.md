@@ -1,6 +1,15 @@
 ---
+# Display name
+name: W. Jake Thompson
+
+# Username (this should match the folder name)
+title: W. Jake Thompson
 authors:
-- W. Jake Thompson
+- wjake
+
+# Is this the primary use of the site
+superuser: true
+
 bio: I'm a psychometrician and educational assessment researcher who loves using R to learn from data.
 education:
   courses:
@@ -16,13 +25,15 @@ interests:
 - Diagnostic Classification Models
 - R programming
 - Data visualization
-name: Jake Thompson
+
 organizations:
 - name: ATLAS
   url: https://atlas.ku.edu
 - name: University of Kansas
   url: https://ku.edu
+
 role: Senior Psychometrician
+
 social:
 - icon: envelope
   icon_pack: fas
@@ -51,7 +62,6 @@ social:
 - icon: stack-overflow
   icon_pack: fab
   link: https://stackoverflow.com/users/6692499/jake-thompson
-superuser: true
 ---
 
 I am a senior psychometrician at [Accessible Teaching, Learning, and Assessment Systems](http://atlas.ku.edu/) at the University of Kansas where I work on the [Dynamic Learning Maps](http://dynamiclearningmaps.org/) alternate assessment and the [Innovations in Science Map, Assessment & Report Technologies](https://ismart.works) project. I completed my PhD in Educational Psychology & Research at the University of Kansas with an emphasis in [Research, Evaluation, Measurement, and Statistics](http://epsy.ku.edu/academics/educational-psychology-research/phd/overview-benefits). My research interests are in the areas of R programming and psychometrics, specifically the application of diagnostic classification models to educational assessment.

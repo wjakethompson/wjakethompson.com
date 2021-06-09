@@ -2,7 +2,7 @@
 title: Using transcranial direct current stimulation for the treatment of mood disorders
 draft: false
 authors: 
-  - W. Jake Thompson
+  - wjake
   - Evangelia G. Chrysikou
 event: 'Hoglund Brain Imaging Center Journal Club'
 location: University of Kansas Medical Center, Kansas City, MO

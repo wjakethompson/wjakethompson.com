@@ -2,7 +2,7 @@
 title: Measuring the reliability of student mastery classifications at mutiple levels
 draft: false
 authors:
-  - W. Jake Thompson
+  - wjake
   - Amy K. Clark
   - Brooke Nash
 event: National Council on Measurement in Education Annual Meeting
