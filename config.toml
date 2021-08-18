@@ -20,7 +20,8 @@ copyright = "&copy; W. Jake Thompson {year}"
 ############################
 
 # Name of Academci theme folder in `themes/`
-theme = "hugo-academic"
+# theme = "hugo-academic"
+theme = "hugo-apero"
 
 # Get last modified date for content from Git?
 enableGitInfo = false
