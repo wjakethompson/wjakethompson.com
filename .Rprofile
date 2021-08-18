@@ -13,7 +13,7 @@ options(
   blogdown.yaml.empty = TRUE,
   blogdown.new_bundle = TRUE,
   blogdown.title_case = TRUE,
-  blogdown.hugo.version = "0.71.1",
+  blogdown.hugo.version = "0.87.0",
   blogdown.serve_site.startup = FALSE,
   blogdown.knit.on_save = FALSE,
   blogdown.files_filter = blogdown:::filter_md5sum
