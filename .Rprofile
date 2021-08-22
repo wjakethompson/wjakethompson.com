@@ -16,5 +16,6 @@ options(
   blogdown.hugo.version = "0.87.0",
   blogdown.serve_site.startup = FALSE,
   blogdown.knit.on_save = FALSE,
+  blogdown.method = "html",
   blogdown.files_filter = blogdown:::filter_md5sum
 )
