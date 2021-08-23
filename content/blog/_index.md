@@ -1,7 +1,7 @@
 ---
-author: The R Markdown Team @RStudio
+author: W. Jake Thompson
 cascade:
-  author: The R Markdown Team @RStudio
+  author: W. Jake Thompson
   show_author_byline: true
   show_comments: true
   show_post_date: true
@@ -16,14 +16,16 @@ show_author_byline: true
 show_post_date: true
 show_post_thumbnail: true
 sidebar:
-  author: The R Markdown Team @RStudio
-  description: "This is a fully featured blog that supports categories,\ntags, series,
-    and pagination. Even this sidebar offers \na ton of customizations.\n\nCheck out
-    the _index.md file in the /blog folder \nto edit this content. \n"
+  author: ""
+  description: |
+    Infrequently, I write about things I've been working on. If I find something
+    interesting, writing a blog post is a good excuse to use it! Topics include
+    data visualization, psychometrics, sports, and whatever else happens to
+    pique my interest.
   show_sidebar_adunit: true
   text_link_label: Subscribe via RSS
   text_link_url: /index.xml
-  title: A Sidebar for Your Thoughts
+  title: Blog
 thumbnail_left: true
 title: A Blog That Works
 ---
