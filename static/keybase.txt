@@ -1,0 +1,55 @@
+==================================================================
+https://keybase.io/wjakethompson
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of https://www.wjakethompson.com
+  * I am wjakethompson (https://keybase.io/wjakethompson) on keybase.
+  * I have a public key ASBxeGlM70OLyoJrv3_ucnr5ldTrOClVZHbjqe9HMMBglQo
+
+To do so, I am signing this object:
+
+{
+  "body": {
+    "key": {
+      "eldest_kid": "01207178694cef438bca826bbf7fee727af995d4eb3829556476e3a9ef4730c060950a",
+      "host": "keybase.io",
+      "kid": "01207178694cef438bca826bbf7fee727af995d4eb3829556476e3a9ef4730c060950a",
+      "uid": "64abe02c5b57b04810f6a7d4244ee919",
+      "username": "wjakethompson"
+    },
+    "merkle_root": {
+      "ctime": 1512670881,
+      "hash": "0e67e7abf154545e54bfd74cd62cb1927c3b39a20bf8cf27f5910ad4f510f8065183690e0de336bb64f420dd3ac0da9e5f6955263711199f124b90448e86368b",
+      "hash_meta": "87d70d0d6a1ff479960ce1e9ef9fd94338d2eb29dba3e691af219c90ca3ed40c",
+      "seqno": 1788724
+    },
+    "service": {
+      "hostname": "www.wjakethompson.com",
+      "protocol": "https:"
+    },
+    "type": "web_service_binding",
+    "version": 1
+  },
+  "client": {
+    "name": "keybase.io go client",
+    "version": "1.0.36"
+  },
+  "ctime": 1512670903,
+  "expire_in": 504576000,
+  "prev": "5a9164d191ffde1072bf6df95afcc285e3ea20ccabc2b9516b29f14efd81b7a6",
+  "seqno": 35,
+  "tag": "signature"
+}
+
+which yields the signature:
+
+hKRib2R5hqhkZXRhY2hlZMOpaGFzaF90eXBlCqNrZXnEIwEgcXhpTO9Di8qCa79/7nJ6+ZXU6zgpVWR246nvRzDAYJUKp3BheWxvYWTFA1N7ImJvZHkiOnsia2V5Ijp7ImVsZGVzdF9raWQiOiIwMTIwNzE3ODY5NGNlZjQzOGJjYTgyNmJiZjdmZWU3MjdhZjk5NWQ0ZWIzODI5NTU2NDc2ZTNhOWVmNDczMGMwNjA5NTBhIiwiaG9zdCI6ImtleWJhc2UuaW8iLCJraWQiOiIwMTIwNzE3ODY5NGNlZjQzOGJjYTgyNmJiZjdmZWU3MjdhZjk5NWQ0ZWIzODI5NTU2NDc2ZTNhOWVmNDczMGMwNjA5NTBhIiwidWlkIjoiNjRhYmUwMmM1YjU3YjA0ODEwZjZhN2Q0MjQ0ZWU5MTkiLCJ1c2VybmFtZSI6IndqYWtldGhvbXBzb24ifSwibWVya2xlX3Jvb3QiOnsiY3RpbWUiOjE1MTI2NzA4ODEsImhhc2giOiIwZTY3ZTdhYmYxNTQ1NDVlNTRiZmQ3NGNkNjJjYjE5MjdjM2IzOWEyMGJmOGNmMjdmNTkxMGFkNGY1MTBmODA2NTE4MzY5MGUwZGUzMzZiYjY0ZjQyMGRkM2FjMGRhOWU1ZjY5NTUyNjM3MTExOTlmMTI0YjkwNDQ4ZTg2MzY4YiIsImhhc2hfbWV0YSI6Ijg3ZDcwZDBkNmExZmY0Nzk5NjBjZTFlOWVmOWZkOTQzMzhkMmViMjlkYmEzZTY5MWFmMjE5YzkwY2EzZWQ0MGMiLCJzZXFubyI6MTc4ODcyNH0sInNlcnZpY2UiOnsiaG9zdG5hbWUiOiJ3d3cud2pha2V0aG9tcHNvbi5jb20iLCJwcm90b2NvbCI6Imh0dHBzOiJ9LCJ0eXBlIjoid2ViX3NlcnZpY2VfYmluZGluZyIsInZlcnNpb24iOjF9LCJjbGllbnQiOnsibmFtZSI6ImtleWJhc2UuaW8gZ28gY2xpZW50IiwidmVyc2lvbiI6IjEuMC4zNiJ9LCJjdGltZSI6MTUxMjY3MDkwMywiZXhwaXJlX2luIjo1MDQ1NzYwMDAsInByZXYiOiI1YTkxNjRkMTkxZmZkZTEwNzJiZjZkZjk1YWZjYzI4NWUzZWEyMGNjYWJjMmI5NTE2YjI5ZjE0ZWZkODFiN2E2Iiwic2Vxbm8iOjM1LCJ0YWciOiJzaWduYXR1cmUifaNzaWfEQMpTM+eE9cCyVnX16JGqYlFU3JhW9OCqxbcVD8hjiUo6fF9aQvHAarje7YXVX0bX4ZMu/es0AoQYB9YxBH6dWgWoc2lnX3R5cGUgpGhhc2iCpHR5cGUIpXZhbHVlxCCeTvEpSovqY/OaDrsOKnToO0jWxbqjCA1tZy7cRswvEKN0YWfNAgKndmVyc2lvbgE=
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/wjakethompson
+
+==================================================================
