@@ -71,13 +71,14 @@ pnorm(0, mean = -15, sd = 11.36, lower.tail = TRUE)
 
 So at the beginning of the game, we estimate Kansas to have a 90.7% chance of winning. As the game progresses, we calculate win probability in the exact same way, we just have to adjust for the current score and the amount of time remaining[^1]. The mean of the distribution gets defined as so that as the game progresses, the point spread gets less weight, and the current margin get more weight.
 
-$$ \mu = \left(point\_spread\  \times\ \frac{minutes\_remain}{40}\right) + \left(margin \times \frac{minutes\_played}{40}\right) $$
+$$\begin{equation}
+\mu = \left(point\_spread\  \times\ \frac{minutes\_remain}{40}\right) + \left(margin \times \frac{minutes\_played}{40}\right)
+\end{equation}$$
 
 Similarly, the standard deviation is adjusted so that the distribution gets more narrow as the game progresses.
 
 $$\begin{equation}
 \sigma = \frac{11.36}{\sqrt{\frac{40}{minutes\_remain}}}
-(\#eq:sigma)
 \end{equation}$$
 
 As the time remaining approaches 0, the denominator increases, making the standard deviation smaller and smaller.
@@ -135,7 +136,6 @@ half_2 <- half_2 %>%
     home_score, play = PLAY)
 
 full_pbp <- bind_rows(list(half_1, half_2))
-full_pbp
 ```
 
 ```{r save_data, include = FALSE, eval = FALSE}
@@ -147,6 +147,9 @@ saveRDS(full_pbp, file = "datafiles/ku-kstate-pbp.rds")
 library(rvest)
 
 full_pbp <- readRDS("data/ku-kstate-pbp.rds")
+```
+
+```{r show-data}
 full_pbp
 ```
 

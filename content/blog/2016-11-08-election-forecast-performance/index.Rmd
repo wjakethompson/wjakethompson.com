@@ -143,7 +143,7 @@ weight to the Brier Score formula by multiplying the electoral votes by the
 error.
 
 $$\begin{equation}
-BS = BS = \displaystyle\sum_{t=1}^{N}EV_t(f_t-o_t)^2
+BS = \displaystyle\sum_{t=1}^{N}EV_t(f_t-o_t)^2
 (\#eq:brier-wt)
 \end{equation}$$
 

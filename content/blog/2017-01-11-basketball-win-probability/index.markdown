@@ -55,13 +55,14 @@ pnorm(0, mean = -15, sd = 11.36, lower.tail = TRUE)
 
 So at the beginning of the game, we estimate Kansas to have a 90.7% chance of winning. As the game progresses, we calculate win probability in the exact same way, we just have to adjust for the current score and the amount of time remaining[^1]. The mean of the distribution gets defined as so that as the game progresses, the point spread gets less weight, and the current margin get more weight.
 
-$$ \mu = \left(point\_spread\  \times\ \frac{minutes\_remain}{40}\right) + \left(margin \times \frac{minutes\_played}{40}\right) $$
+`$$\begin{equation}
+\mu = \left(point\_spread\  \times\ \frac{minutes\_remain}{40}\right) + \left(margin \times \frac{minutes\_played}{40}\right)
+\end{equation}$$`
 
 Similarly, the standard deviation is adjusted so that the distribution gets more narrow as the game progresses.
 
 `$$\begin{equation}
 \sigma = \frac{11.36}{\sqrt{\frac{40}{minutes\_remain}}}
-(\#eq:sigma)
 \end{equation}$$`
 
 As the time remaining approaches 0, the denominator increases, making the standard deviation smaller and smaller.
@@ -121,25 +122,27 @@ half_2 <- half_2 %>%
     home_score, play = PLAY)
 
 full_pbp <- bind_rows(list(half_1, half_2))
+```
+
+
+
+
+
+
+```r
 full_pbp
-```
-
-
-
-
-```
-#> # A tibble: 336 x 8
+#> # A tibble: 336 × 8
 #>    period minute second min_played min_remain away_score home_score play        
 #>    <chr>   <dbl>  <dbl>      <dbl>      <dbl>      <dbl>      <dbl> <chr>       
 #>  1 H1         20      0      0           40            0          0 Jump Ball w…
 #>  2 H1         19     50      0.167       39.8          0          0 Devonte' Gr…
 #>  3 H1         19     50      0.167       39.8          0          0 Landen Luca…
 #>  4 H1         19     43      0.283       39.7          0          2 Josh Jackso…
-#>  5 H1         19     27      0.55        39.4          0          2 Kamau Stoke…
-#>  6 H1         19     27      0.55        39.4          0          2 Frank Mason…
-#>  7 H1         19     12      0.8         39.2          0          2 Devonte' Gr…
-#>  8 H1         19     12      0.8         39.2          0          2 Dean Wade D…
-#>  9 H1         18     48      1.20        38.8          2          2 Wesley Iwun…
+#>  5 H1         19     27      0.550       39.4          0          2 Kamau Stoke…
+#>  6 H1         19     27      0.550       39.4          0          2 Frank Mason…
+#>  7 H1         19     12      0.800       39.2          0          2 Devonte' Gr…
+#>  8 H1         19     12      0.800       39.2          0          2 Dean Wade D…
+#>  9 H1         18     48      1.2         38.8          2          2 Wesley Iwun…
 #> 10 H1         18     33      1.45        38.6          2          2 Devonte' Gr…
 #> # … with 326 more rows
 ```
