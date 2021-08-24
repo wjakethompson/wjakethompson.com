@@ -1,12 +1,11 @@
 ---
-author: Alison Hill
+author: Jake Thompson
 cascade:
-  author: Alison Hill
+  author: Jake Thompson
   categories:
-  - Theme Features
   - R
   layout: single-series
-  series: A Spoonful of Hugo
+  series: Tidy Sports Analytics
   show_author_byline: true
   show_post_date: true
   sidebar:
@@ -16,26 +15,23 @@ cascade:
     text_link_url: ""
     text_series_label: In this series
   tags:
-  - hugo-site
+  - sports
+  - nfl
 description: |
-  A forking fun new feature for series.
+  Learn how to use the tidyverse for some basic sports analytics!
 layout: list-sidebar
 show_author_byline: true
 show_post_date: true
 show_post_thumbnail: false
 sidebar:
-  author: Alison Hill
+  author: Jake Thompson
   description: |
-    A forking fun new feature for series.
-    Even this sidebar offers a ton of customizations!
-
-    Check out the _index.md file in the /blog/spoonful-series
-    folder to edit this content.
+    Learn how to use the tidyverse for some basic sports analytics!
   show_sidebar_adunit: false
   text_link_label: ""
   text_link_url: ""
-  title: A Spoonful of Hugo
-title: A Spoonful of Hugo
+  title: Tidy Sports Analytics
+title: Tidy Sports Analytics
 ---
 
 ** No content below YAML for the series _index. This file is a leaf bundle, and provides settings for the listing page layout and sidebar content.**
