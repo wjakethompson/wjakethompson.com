@@ -37,12 +37,12 @@ knitr::opts_chunk$set(
 )
 ```
 
-Last week I premiered my in game win probabilities for KU basketball. These have been available for a while on [Hawklytics](http://www.hawklytics.com/winprob17), but were always made after the game rather than in real time. Now that they are going live, I thought it would helpful to document how these are made using R and the `ggplot2` package.
+Last week I started making win probability plot after each KU basketball game, but they were always made after the game rather than in real time. Now that they are going live, I thought it would helpful to document how these are made using R and the `ggplot2` package.
 
 
 ## Calculating Win Probability
 
-The win probabilities are based on the Elo ratings that I calculate for the [team ratings on Hawkytics](http://www.hawklytics.com/). Elo ratings provide an estimate of team strength or ability *at the current point in time*. This makes it straightforward to determine the ratings of each team on the day the game was played. For more about Elo ratings and how they are calculated go [here](https://en.wikipedia.org/wiki/Elo_rating_system), or check out [this explainer from FiveThirtyEight](http://fivethirtyeight.com/features/how-we-calculate-nba-elo-ratings/), which is what my Elo ratings are based off of.
+The win probabilities are based on Elo ratings. Elo ratings provide an estimate of team strength or ability *at the current point in time*. This makes it straightforward to determine the ratings of each team on the day the game was played. For more about Elo ratings and how they are calculated go [here](https://en.wikipedia.org/wiki/Elo_rating_system), or check out [this explainer from FiveThirtyEight](http://fivethirtyeight.com/features/how-we-calculate-nba-elo-ratings/), which is what my Elo ratings are based off of.
 
 For this example, we'll use the Kansas vs. Kansas State game on January 3, 2017. After giving KU a boost for home court advantage Kansas had a pre-game Elo rating of 2163, and Kansas State had an Elo rating of 1761. This difference in Elo ratings translates to Kansas being favored by ~15 points.
 
@@ -221,7 +221,7 @@ full_game %>%
   theme(legend.position = "bottom", legend.title = element_blank())
 ```
 
-And there you have our final product! For future Kansas games, I will be [tweeting out](https://twitter.com/wjakethompson) real time win probability graphs, and as always, previous games can be found on [Hawklytics](http://www.hawklytics.com/winprob17).
+And there you have our final product! For future Kansas games, I will be [tweeting out](https://twitter.com/wjakethompson) real time win probability graphs.
 
 
 ## Bonus: Animate the Plots

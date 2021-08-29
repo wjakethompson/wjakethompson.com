@@ -41,7 +41,7 @@ As always, the code and data for this post are available on my [Github](https://
 
 ## The Ratings
 
-The team ratings come from my sports analytics website, [Hawklytics](http://www.hawklytics.com/). We first have to adjust these ratings for home court advantage[^1], and then we can calculate the probability that the Big 12 will win each game using the [Log-5 formula](https://en.wikipedia.org/wiki/Log5).
+The team ratings are composite ratings, based off of Elo ratings and adjusted efficiencies). We first have to adjust these ratings for home court advantage[^1], and then we can calculate the probability that the Big 12 will win each game using the [Log-5 formula](https://en.wikipedia.org/wiki/Log5).
 
 [^1]: The home team's offense is increased by 30% and defense is decreased by 30%, and the reverse is done for the away team.
 

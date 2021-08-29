@@ -22,7 +22,7 @@ As always, the code and data for this post are available on my [Github](https://
 
 ## The Ratings
 
-The team ratings come from my sports analytics website, [Hawklytics](http://www.hawklytics.com/). Using the composite ratings, we can calculate the probability of any team beating another using the [Log-5 formula](https://en.wikipedia.org/wiki/Log5). Using those probabilities, we can calculate the probability of any team advancing to each round.
+Using the composite ratings (based off of Elo ratings and adjusted efficiencies), we can calculate the probability of any team beating another using the [Log-5 formula](https://en.wikipedia.org/wiki/Log5). Using those probabilities, we can calculate the probability of any team advancing to each round.
 
 
 ```r
