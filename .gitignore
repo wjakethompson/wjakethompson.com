@@ -3,5 +3,9 @@
 .RData
 .Ruserdata
 /public/*
+/public/
 .DS_Store
-resources/
+/resources/*
+/resources/
+Thumbs.db
+content/blog/*/index_cache/*
