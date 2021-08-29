@@ -1,13 +1,17 @@
 ---
-title: Making an animated contour plot
-author: Jake Thompson
-date: '2018-09-05'
+title: "Making an Animated Contour Plot"
+subtitle: ""
+excerpt: "Recreate contour plots using ggplot2 and gganimate."
+date: 2018-09-05
+author: "Jake Thompson"
+draft: false
 categories:
   - R
 tags:
-  - gganimate
   - ggplot2
+  - gganimate
   - tidyverse
+layout: single
 ---
 
 Earlier this week [Mike Bostock](https://twitter.com/mbostock/) tweeted a interesting looking contour plot with a [link](https://t.co/joWfPgUAAU) to edit the formula and manipulate the graphic using D3.js.

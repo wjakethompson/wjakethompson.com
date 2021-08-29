@@ -1,12 +1,16 @@
 ---
-title: Animated TIE Fighter
-author: Jake Thompson
-date: '2018-05-04'
+title: "Animated TIE Fighter"
+subtitle: ""
+excerpt: "Happy Stars Wars day! Let's make a TIE Figher animation to celebrate!"
+date: 2018-05-04
+author: "Jake Thompson"
+draft: false
 categories:
   - R
 tags:
   - ggplot2
   - gganimate
+layout: single
 ---
 
 ```{r setup, include = FALSE, message = FALSE}

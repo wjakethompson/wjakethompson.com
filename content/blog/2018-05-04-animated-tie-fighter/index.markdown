@@ -1,12 +1,16 @@
 ---
-title: Animated TIE Fighter
-author: Jake Thompson
-date: '2018-05-04'
+title: "Animated TIE Fighter"
+subtitle: ""
+excerpt: "Happy Stars Wars day! Let's make a TIE Figher animation to celebrate!"
+date: 2018-05-04
+author: "Jake Thompson"
+draft: false
 categories:
   - R
 tags:
   - ggplot2
   - gganimate
+layout: single
 ---
 
 Recently I’ve been looking for an excuse to try out [Thomas Lin Pedersen’s](https://twitter.com/thomasp85) new grammar of animation, which is an extension of [**ggplot2**](http://ggplot2.tidyverse.org) and a retooling of the existing [**gganmiate**](https://github.com/thomasp85/gganimate/tree/v0.1.1) package. You can find the new package [here](https://github.com/thomasp85/gganimate).

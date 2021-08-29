@@ -1,12 +1,16 @@
 ---
-title: Using rtweet to Create a tidyverse Twitterbot
-author: Jake Thompson
-date: '2017-12-11'
+title: "Using rtweet to Create a tidyverse Twitterbot"
+subtitle: ""
+excerpt: "See the inner workings of a Twitter bot that sends out new tidyverse questions."
+date: 2017-12-11
+author: "Jake Thompson"
+draft: false
 categories:
   - R
 tags:
   - tidyverse
   - rtweet
+layout: single
 ---
 
 ```{r setup, include = FALSE, message = FALSE}
