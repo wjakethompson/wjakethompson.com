@@ -270,7 +270,7 @@ p <- full_game %>%
 gganimate(p, interval = 0.2, title_frame = FALSE)
 ```
 
-![](https://media.giphy.com/media/7IQfZhaqM16M4d08cy/giphy.gif)
+<img src="https://media.giphy.com/media/7IQfZhaqM16M4d08cy/giphy.gif" width="80%" style="display: block; margin: auto;" />
 
 We could also animate the distribution to show exactly how the distribution is changing as we alter the mean and standard deviation.
 
@@ -304,7 +304,7 @@ d <- ggplot(dist, aes(frame = min_played)) +
 gganimate(d, interval = 0.2)
 ```
 
-![](https://media.giphy.com/media/H2OfDY5IQfNyrCYuJM/giphy.gif)
+<img src="https://media.giphy.com/media/H2OfDY5IQfNyrCYuJM/giphy.gif" width="80%" style="display: block; margin: auto;" />
 
 ## Limitations
 

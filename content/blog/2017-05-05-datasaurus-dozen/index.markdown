@@ -73,7 +73,7 @@ animation::ani.options(interval = 1)
 gganimate(p, title_frame = FALSE)
 ```
 
-![](https://media.giphy.com/media/NhgAsZi9EyE3qdUSvg/giphy.gif)
+<img src="https://media.giphy.com/media/NhgAsZi9EyE3qdUSvg/giphy.gif" width="80%" style="display: block; margin: auto;" />
 
 This is close, but not quite what I was looking for. This does indeed animate all of the datasets, but in order to duplicate the GIF above, I really want to see the points moving into their new positions for each dataset. To get this effect, I’ll use the **tweenr** package. **tweenr** takes in a list of dataframes, and then interpolates the transitions between the states.
 
@@ -138,6 +138,6 @@ animation::ani.options(interval = 1 / 15)
 gganimate(p, title_frame = FALSE)
 ```
 
-![](https://media.giphy.com/media/sTLW3CGIjnZdyoieoU/giphy.gif)
+<img src="https://media.giphy.com/media/sTLW3CGIjnZdyoieoU/giphy.gif" width="80%" style="display: block; margin: auto;" />
 
 And there you have it! Now we can see all of the points moving between each dataset!
