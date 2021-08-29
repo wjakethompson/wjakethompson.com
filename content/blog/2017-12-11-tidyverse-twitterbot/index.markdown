@@ -3,7 +3,7 @@ title: Using rtweet to Create a tidyverse Twitterbot
 author: Jake Thompson
 date: '2017-12-11'
 categories:
-  - rstats
+  - R
 tags:
   - tidyverse
   - rtweet
@@ -55,7 +55,7 @@ tidy_so <- map(tidyverse, query_tag) %>%
   arrange(creation_date)
 
 tidy_so
-#> # A tibble: 1,839 × 3
+#> # A tibble: 1,837 × 3
 #>    title                        creation_date       link                        
 #>    <chr>                        <dttm>              <chr>                       
 #>  1 "ggplot with 2 y axes on ea… 2010-06-23 00:52:19 https://stackoverflow.com/q…
@@ -68,7 +68,7 @@ tidy_so
 #>  8 "passing function argument … 2014-04-07 12:43:24 https://stackoverflow.com/q…
 #>  9 "Speed up API calls in R"    2014-04-10 06:27:48 https://stackoverflow.com/q…
 #> 10 "Differences between %.% (d… 2014-05-12 19:53:37 https://stackoverflow.com/q…
-#> # … with 1,829 more rows
+#> # … with 1,827 more rows
 ```
 
 The next step is to pull new topics that have been posted to the RStudio Community site. To do this, we can use the [**feedeR**](https://github.com/DataWookie/feedeR) package from [Andrew Collier](https://twitter.com/DataWookie). This package is great for dealing with RSS feeds in *R*. As we did when querying StackOverflow, we’ll first define a function to query the RSS feed we’re interested in. This function uses the [**glue**](http://glue.tidyverse.org/) package to construct the RSS feed URL from the category that is supplied.

@@ -3,7 +3,7 @@ title: Using rtweet to Create a tidyverse Twitterbot
 author: Jake Thompson
 date: '2017-12-11'
 categories:
-  - rstats
+  - R
 tags:
   - tidyverse
   - rtweet
