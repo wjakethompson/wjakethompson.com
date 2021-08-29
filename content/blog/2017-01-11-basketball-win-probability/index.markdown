@@ -11,7 +11,6 @@ tags:
   - sports
   - ggplot2
   - basketball
-  - kubball
 layout: single
 ---
 

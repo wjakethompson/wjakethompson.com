@@ -17,8 +17,8 @@ draft: false
 featured: false
 
 categories:
-- workshop
 - R
+- workshop
 tags:
 - sports
 - basketball

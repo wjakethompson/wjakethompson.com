@@ -17,9 +17,8 @@ draft: false
 featured: false
 
 categories:
-- workshop
-- lecture
 - R
+- lecture
 tags:
 - ggplot2
 

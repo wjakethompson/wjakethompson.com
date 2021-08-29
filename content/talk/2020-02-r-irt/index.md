@@ -17,7 +17,7 @@ draft: false
 featured: false
 
 categories:
-- workshop
+- lecture
 - R
 - psychometrics
 tags:

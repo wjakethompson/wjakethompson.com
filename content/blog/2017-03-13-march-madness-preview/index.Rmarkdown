@@ -10,7 +10,6 @@ categories:
 tags:
   - sports
   - basketball
-  - kubball
 layout: single
 ---
 
