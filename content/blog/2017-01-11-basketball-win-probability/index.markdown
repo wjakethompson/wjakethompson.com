@@ -238,7 +238,7 @@ full_game %>%
 
 <img src="{{< blogdown/postref >}}index_files/figure-html/final_plot-1.png" width="80%" style="display: block; margin: auto;" />
 
-And there you have our final product! For future Kansas games, I will be [tweeting out](https://twitter.com/jakethomp) real time win probability graphs, and as always, previous games can be found on [Hawklytics](http://www.hawklytics.com/winprob17).
+And there you have our final product! For future Kansas games, I will be [tweeting out](https://twitter.com/wjakethompson) real time win probability graphs, and as always, previous games can be found on [Hawklytics](http://www.hawklytics.com/winprob17).
 
 
 ## Bonus: Animate the Plots
