@@ -59,10 +59,10 @@ a probability of 1.0 and the event actually occuring, or a probability of 0.0
 and the event not occuring) would result in a Brier Score of 0, and the worst
 possible score is 1. For example if a model predicted Hillary Clinton had an 87
 percent chance of winning a state, and she ended up winning that state, that
-part of the Brier score would be calculated as `\((0.87 - 1)^2 = 0.0169\)`.
+part of the Brier score would be calculated as (0.87 - 1)^2 = 0.0169.
 Because the probability is close to 1, and the event happened, the Brier Score
 is low, indicating high prediction accuracy. In contrast, if Clinton were to
-lose that state, the Brier score would be `\((0.87 - 0)^2 = 0.7569\)`, a
+lose that state, the Brier score would be (0.87 - 0)^2 = 0.7569, a
 relatively large number indicating a bad prediction. For any given model then,
 we can add up these prediction errors for each state, and then divide by the
 total number of predictions to get an overall Brier Score for each model:
