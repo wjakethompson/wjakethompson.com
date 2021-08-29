@@ -12,25 +12,7 @@ tags:
 layout: single
 ---
 
-```{r setup, include = FALSE, message = FALSE}
-library(knitr)
-library(MASS)
-library(dplyr)
-library(purrr)
-library(ggplot2)
-library(readxl)
-library(here)
 
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  echo = TRUE,
-  cache = TRUE,
-  fig.align = "center",
-  warning = FALSE,
-  message = FALSE
-)
-```
 
 After more than a year and a half, the 2016 presidential election is finally
 over, with Donald Trump [projected to win](http://www.nytimes.com/elections/results/president). This is in contrast to many of the election forecasts, which almost unanimously
@@ -49,13 +31,7 @@ Now, let's see how some different forecasts performed.
 
 ## The Forecasts
 
-```{r data, include = FALSE, message = FALSE}
-election <- read_excel("data/election_forecasts_2016.xlsx")
-colnames(election) <- c("state", "abbr", "ev", "new_york_times",
-  "fivethirtyeight", "huffington_post", "predictwise",
-  "princeton_electoral_consortium", "poll_savvy", "daily_kos", "crosstab",
-  "slate", "map_2012", "dem_win")
-```
+
 
 
 For this analysis I'm going to focus on some of the more popular forecasts from
@@ -73,10 +49,9 @@ in each state for each model. To do this, we'll use the [Brier Score](https://en
 close predicted probabilities were to an observed event. The formula for the
 Brier Score is given as
 
-$$\begin{equation}
+$$
 BS = \frac{1}{N} \displaystyle\sum_{t=1}^{N}(f_t-o_t)^2
-(\#eq:brier)
-\end{equation}$$
+$$
 
 where "N" is the total number of predictions, "f" is the predicted probability
 of the event, and "o" is the observed outcome. Thus, a perfect prediction (e.g.,
@@ -84,53 +59,27 @@ a probability of 1.0 and the event actually occuring, or a probability of 0.0
 and the event not occuring) would result in a Brier Score of 0, and the worst
 possible score is 1. For example if a model predicted Hillary Clinton had an 87
 percent chance of winning a state, and she ended up winning that state, that
-part of the Brier score would be calculated as $(0.87 - 1)^2 = 0.0169$.
+part of the Brier score would be calculated as `\((0.87 - 1)^2 = 0.0169\)`.
 Because the probability is close to 1, and the event happened, the Brier Score
 is low, indicating high prediction accuracy. In contrast, if Clinton were to
-lose that state, the Brier score would be $(0.87 - 0)^2 = 0.7569$, a
+lose that state, the Brier score would be `\((0.87 - 0)^2 = 0.7569\)`, a
 relatively large number indicating a bad prediction. For any given model then,
 we can add up these prediction errors for each state, and then divide by the
 total number of predictions to get an overall Brier Score for each model:
 
-```{r brier_score, echo = FALSE, strip.white = FALSE}
-brier_score <- function(probs, outcome) {
-  probs <- probs[which(!is.na(outcome))]
-  outcome <- outcome[which(!is.na(outcome))]
-  
-  
-  ((probs - outcome)^2) %>%
-    mean()
-}
 
-forecast_lookup <- data_frame(
-  rname = c("new_york_times", "fivethirtyeight", "huffington_post",
-    "predictwise", "princeton_electoral_consortium", "poll_savvy",
-    "daily_kos", "crosstab", "slate", "map_2012"),
-  name = c("New York Times", "FiveThirtyEight", "Huffington Post",
-    "PredictWise", "Princeton", "Poll Savvy",
-    "Daily Kos", "Crosstab", "Slate", "2012 Map")
-)
-
-predictions <- election %>%
-  select(new_york_times, fivethirtyeight, huffington_post, predictwise,
-    princeton_electoral_consortium, poll_savvy, daily_kos, crosstab, slate,
-    map_2012) %>%
-  as.list()
-
-scores <- pmap_dbl(.l = list(probs = predictions), .f = brier_score,
-  outcome = election$dem_win)
-
-output <- data_frame(
-  method = names(scores),
-  brier_score = scores
-) %>%
-  left_join(forecast_lookup, by = c("method" = "rname")) %>%
-  arrange(brier_score) %>%
-  mutate(brier_score = sprintf("%0.3f", brier_score)) %>%
-  select(Forecast = name, `Brier Score` = brier_score)
-
-knitr::kable(output)
-```
+|Forecast        |Brier Score |
+|:---------------|:-----------|
+|FiveThirtyEight |0.066       |
+|Crosstab        |0.070       |
+|Slate           |0.076       |
+|PredictWise     |0.076       |
+|New York Times  |0.076       |
+|Princeton       |0.077       |
+|Poll Savvy      |0.080       |
+|Daily Kos       |0.080       |
+|Huffington Post |0.090       |
+|2012 Map        |0.125       |
 
 
 Using this method, all models out perform the 2012 map, as we would expect. 
@@ -142,10 +91,9 @@ who wins the presidency than predicting North Dakota incorrectly. We can add a
 weight to the Brier Score formula by multiplying the electoral votes by the
 error.
 
-$$\begin{equation}
+$$
 BS = \displaystyle\sum_{t=1}^{N}EV_t(f_t-o_t)^2
-(\#eq:brier-wt)
-\end{equation}$$
+$$
 
 For this method, we are just summing all of the weighted prediction errors,
 rather than taking the average. This means that the Brier score is equivalent to
@@ -155,55 +103,19 @@ incorrectly predicted with a probability of 0 or 1.
 
 Using the weighted Brier Score, we see similar results.
 
-```{r weighted_brier, echo = FALSE, strip.white = FALSE}
-weighted_brier_score <- function(probs, outcome, weights) {
-  if (missing(weights)) {
-    weights <- rep(1, length(outcome))
-  } 
 
-  probs <- probs[which(!is.na(outcome))]
-  weights <- weights[which(!is.na(outcome))]
-  outcome <- outcome[which(!is.na(outcome))]
-  
-  
-  (weights * ((probs - outcome)^2)) %>%
-    sum()
-}
-
-forecast_lookup <- data_frame(
-  rname = c("new_york_times", "fivethirtyeight", "huffington_post",
-    "predictwise", "princeton_electoral_consortium", "poll_savvy",
-    "daily_kos", "crosstab", "slate", "map_2012"),
-  name = c("New York Times", "FiveThirtyEight", "Huffington Post",
-    "PredictWise", "Princeton", "Poll Savvy",
-    "Daily Kos", "Crosstab", "Slate", "2012 Map")
-)
-
-predictions <- election %>%
-  select(new_york_times, fivethirtyeight, huffington_post, predictwise,
-    princeton_electoral_consortium, poll_savvy, daily_kos, crosstab, slate,
-    map_2012) %>%
-  as.list()
-
-scores <- pmap_dbl(.l = list(probs = predictions), .f = brier_score,
-  outcome = election$dem_win)
-weighted_scores <- pmap_dbl(.l = list(probs = predictions), .f = weighted_brier_score,
-  outcome = election$dem_win, weights = election$ev)
-
-output <- data_frame(
-  method = names(scores),
-  brier_score = scores,
-  weighted_brier = weighted_scores
-) %>%
-  left_join(forecast_lookup, by = c("method" = "rname")) %>%
-  arrange(weighted_brier) %>%
-  mutate(brier_score = sprintf("%0.3f", brier_score),
-    weighted_brier = sprintf("%0.3f", weighted_brier)) %>%
-  select(Forecast = name, `Brier Score` = brier_score,
-    `Weighted Brier` = weighted_brier)
-
-knitr::kable(output)
-```
+|Forecast        |Brier Score |Weighted Brier |
+|:---------------|:-----------|:--------------|
+|FiveThirtyEight |0.066       |48.793         |
+|Crosstab        |0.070       |59.601         |
+|Princeton       |0.077       |62.813         |
+|New York Times  |0.076       |64.643         |
+|Poll Savvy      |0.080       |64.668         |
+|Slate           |0.076       |65.038         |
+|PredictWise     |0.076       |68.132         |
+|Daily Kos       |0.080       |69.283         |
+|Huffington Post |0.090       |80.722         |
+|2012 Map        |0.125       |100.000        |
 
 
 FiveThirtyEight again performs the best, prediting the equivalent of about 49
@@ -225,82 +137,7 @@ A large discrepancy between the expected and observed mean that the model's
 probabilites were not consistent with the observed data, indicating poor model
 accuracy.
 
-```{r sim, echo = FALSE}
-set.seed(9416)
-preds <- election %>%
-  filter(!grepl("_", state)) %>%
-  select(-(state:ev), -map_2012, -dem_win) %>%
-  as.list()
-wins <- election %>%
-  filter(!grepl("_", state)) %>%
-  select(dem_win) %>%
-  flatten_dbl()
-
-incorrect <- map_dbl(.x = preds, function(x, wins) {
-    results <- case_when(
-      x < 0.5 & wins == 0 ~ 1,
-      x >= 0.5 & wins == 1 ~ 1,
-      TRUE ~ 0
-    )
-    length(which(results == 0))
-  }, wins = wins)
-
-obs_incorrect <- data_frame(
-  model = names(preds),
-  incorrect = incorrect
-)
-
-numsim <- 5000
-incorrect_preds <- list_along(preds)
-for (i in seq_along(preds)) {
-  cur_pred <- preds[[i]]
-  pred_list <- list_along(seq_len(numsim))
-  for(j in seq_len(numsim)) {
-    results <- pmap_dbl(.l = list(prob = cur_pred), .f = rbinom, n = 1, size = 1)
-    correct <- case_when(
-      results == 0 & cur_pred < 0.5 ~ 1,
-      results == 1 & cur_pred >= 0.5 ~ 1,
-      TRUE ~ 0
-    )
-    pred_list[[j]] <- length(which(correct == 0))
-  }
-  incorrect_preds[[i]] <- do.call("c", pred_list)
-}
-names(incorrect_preds) <- names(preds)
-
-incorrect <- map2_df(.x = incorrect_preds, .y = names(incorrect_preds),
-  .f = function(x, y) {
-    data_frame(model = y, incorrect_picks = x)
-  }) %>%
-  left_join(obs_incorrect, by = c("model")) %>%
-  left_join(forecast_lookup, by = c("model" = "rname")) %>%
-  select(model = name, incorrect_picks, obs_incorrect = incorrect)
-summary <- incorrect %>%
-  group_by(model) %>%
-  summarize(mean = mean(incorrect_picks),
-    pvalue = length(which(incorrect_picks > unique(obs_incorrect))) / n()) %>%
-  arrange(mean) %>%
-  mutate(pvalue = sprintf("%0.3f", pvalue))
-
-incorrect <- incorrect %>%
-  mutate(model = factor(model, levels = summary$model,
-    labels = paste0(summary$model, "\np = ", summary$pvalue)))
-obs_incorrect <- obs_incorrect %>%
-  left_join(forecast_lookup, by = c("model" = "rname")) %>%
-  select(model = name, incorrect) %>%
-  mutate(model = factor(model, levels = summary$model,
-    labels = paste0(summary$model, "\np = ", summary$pvalue)))
-
-ggplot() +
-  facet_wrap(~ model, nrow = 3) +
-  geom_histogram(data = incorrect, mapping = aes(x = incorrect_picks),
-    binwidth = 1, alpha = 0.9) +
-  geom_vline(data = obs_incorrect, mapping = aes(xintercept = incorrect),
-    linetype = "dashed", color = "red") +
-  scale_x_continuous(breaks = seq(0, 51, 2)) +
-  labs(x = "Incorrectly Picked States", y = "Count") +
-  theme_bw()
-```
+<img src="{{< blogdown/postref >}}index_files/figure-html/sim-1.png" width="672" style="display: block; margin: auto;" />
 
 
 In the plot above, the red line indicates the number of states the model
@@ -341,99 +178,7 @@ graphic aren't as variable as they should be. The expected value won't change
 much, but the distribution of plausible numbers of incorrect picks should get
 wider. Let's test that and see if our conclusions are the same.
 
-```{r corsim, echo = FALSE}
-set.seed(9416)
-preds <- election %>%
-  filter(!grepl("_", state)) %>%
-  select(-(state:ev), -map_2012, -dem_win) %>%
-  as.list()
-wins <- election %>%
-  filter(!grepl("_", state)) %>%
-  select(dem_win) %>%
-  flatten_dbl()
-
-incorrect <- map_dbl(.x = preds, function(x, wins) {
-    results <- case_when(
-      x < 0.5 & wins == 0 ~ 1,
-      x >= 0.5 & wins == 1 ~ 1,
-      TRUE ~ 0
-    )
-    length(which(results == 0))
-  }, wins = wins)
-
-obs_incorrect <- data_frame(
-  model = names(preds),
-  incorrect = incorrect
-)
-
-dem_history <- read.csv("data/election_dem_history.csv",
-  stringsAsFactors = FALSE, check.names = FALSE) %>%
-  filter(Year >= 1964) %>%
-  select(-Year)
-
-rho <- cor(dem_history)
-
-numsim <- 5000
-incorrect_preds <- list_along(preds)
-for (i in seq_along(preds)) {
-  cur_pred <- preds[[i]]
-  sigma <- rho
-  for (r in 1:nrow(rho)) {
-    for (c in 1:ncol(rho)) {
-      varr <- (cur_pred[r]) * (1 - cur_pred[r])
-      varc <- (cur_pred[c]) * (1 - cur_pred[c])
-      sigma[r, c] <- rho[r, c] * sqrt(varr) * sqrt(varc)
-    }
-  }
-  
-  pred_list <- list_along(seq_len(numsim))
-  for(j in seq_len(numsim)) {
-    results <- mvrnorm(n = 1, mu = cur_pred, Sigma = sigma)
-    results <- ifelse(results < 0.5, 0, 1)
-    correct <- case_when(
-      results == 0 & cur_pred < 0.5 ~ 1,
-      results == 1 & cur_pred >= 0.5 ~ 1,
-      TRUE ~ 0
-    )
-    pred_list[[j]] <- length(which(correct == 0))
-  }
-  incorrect_preds[[i]] <- do.call("c", pred_list)
-}
-names(incorrect_preds) <- names(preds)
-
-incorrect <- map2_df(.x = incorrect_preds, .y = names(incorrect_preds),
-  .f = function(x, y) {
-    data_frame(model = y, incorrect_picks = x)
-  }) %>%
-  left_join(obs_incorrect, by = c("model")) %>%
-  left_join(forecast_lookup, by = c("model" = "rname")) %>%
-  select(model = name, incorrect_picks, obs_incorrect = incorrect)
-summary <- incorrect %>%
-  group_by(model) %>%
-  summarize(mean = mean(incorrect_picks),
-    pvalue = length(which(incorrect_picks > unique(obs_incorrect))) / n()) %>%
-  arrange(mean) %>%
-  mutate(pvalue = sprintf("%0.3f", pvalue))
-
-incorrect <- incorrect %>%
-  mutate(model = factor(model, levels = summary$model,
-    labels = paste0(summary$model, "\np = ", summary$pvalue)))
-obs_incorrect <- obs_incorrect %>%
-  left_join(forecast_lookup, by = c("model" = "rname")) %>%
-  select(model = name, incorrect) %>%
-  mutate(model = factor(model, levels = summary$model,
-    labels = paste0(summary$model, "\np = ", summary$pvalue)))
-
-ggplot() +
-  facet_wrap(~ model, nrow = 3) +
-  geom_histogram(data = incorrect, mapping = aes(x = incorrect_picks),
-    binwidth = 1, alpha = 0.9) +
-  geom_vline(data = obs_incorrect, mapping = aes(xintercept = incorrect),
-    linetype = "dashed", color = "red") +
-  scale_x_continuous(breaks = seq(0, 51, 2)) +
-  labs(x = "Incorrectly Picked States", y = "Count") +
-  theme_bw()
-```
+<img src="{{< blogdown/postref >}}index_files/figure-html/corsim-1.png" width="672" style="display: block; margin: auto;" />
 
 
 As expected, the distributions are much wider once we allow for correlated
