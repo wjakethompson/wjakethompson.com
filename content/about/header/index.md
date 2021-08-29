@@ -20,4 +20,4 @@ My research interests are in the areas of R programming and psychometrics,
 specifically the application of diagnostic classification models to
 educational assessment and applied research.
 
-When I'm not working, I can be found with my amazing [partner](https://www.linkedin.com/in/juliachasen) listening to Taylor Swift, watching true crime shows, and playing with our rescue dog, [Larry](https://www.instagram.com/lyfewithlarry/?hl=en).
+When I'm not working, I can be found with my amazing [partner](https://www.linkedin.com/in/juliachasen/) listening to Taylor Swift, watching true crime shows, and playing with our rescue dog, [Larry](https://www.instagram.com/lyfewithlarry/?hl=en).

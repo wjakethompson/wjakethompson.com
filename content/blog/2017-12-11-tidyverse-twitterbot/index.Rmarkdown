@@ -35,7 +35,7 @@ A while back, I was inspired by this Twitter exchange to create a bot that would
 blogdown::shortcode("tweet", "930526766116073473")
 ```
 
-Last week I finally had enough time to sit and put some work in to get this idea up and running! This post will walk through how I created the [\@tidyversetweets](https://twitter.com/tidyversetweets) Twitter bot using the great [**rtweet**](http://rtweet.info/) package by [Mike Kearney](https://twitter.com/kearneymw).
+Last week I finally had enough time to sit and put some work in to get this idea up and running! This post will walk through how I created the [\@tidyversetweets](https://twitter.com/tidyversetweets) Twitter bot using the great [**rtweet**](https://docs.ropensci.org/rtweet/) package by [Mike Kearney](https://twitter.com/kearneymw).
 
 
 ## Step 1: Get the data

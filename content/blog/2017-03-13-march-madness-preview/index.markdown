@@ -17,7 +17,7 @@ layout: single
 
 March Madness officially tips off tomorrow with the First Four games in Dayton before the round of 64 begins on Thursday. In this post, we'll look at each team's chance of advancing and winning the national title. We'll also look at who was help and hurt most by how the committee seeded the tournament.
 
-As always, the code and data for this post are available on my [Github](https://github.com/wjakethompson/wjakethompson.github.io) page.
+As always, the code and data for this post are available on my [Github](https://github.com/wjakethompson/wjakethompson.com) page.
 
 
 ## The Ratings
