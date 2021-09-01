@@ -187,6 +187,12 @@ code, .code {
   font-family: "Source Code Pro", monospace;
 }
 
+.post-body > p > code,
+.post-body > p > a > code {
+  background-color: transparent !important;
+  font-size: .93rem;
+}
+
 
 /* adjustments to navbar ---------------------------------------------------- */
 div.site-links {
