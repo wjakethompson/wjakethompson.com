@@ -36,7 +36,7 @@ query_tag <- function(tag) {
 }
 ```
 
-We can then define the tags that we want to look up on StackOverflow. For now, I’ve listed all the packages that are included in the [offical list of tidyverse packages](https://www.tidyverse.org/packages/).
+We can then define the tags that we want to look up on StackOverflow. For now, I’ve listed all the packages that are included in the [official list of tidyverse packages](https://www.tidyverse.org/packages/).
 
 ``` r
 tidyverse <- c("tidyverse", "ggplot2", "dplyr", "tidyr", "readr", "purrr",
