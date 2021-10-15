@@ -1,0 +1,39 @@
+---
+title: "Creating a custom color palette class with vctrs"
+subtitle: ""
+excerpt: "We're in screaming color! Learn how the custom color palette methods for taylor were made using vctrs."
+date: 2021-10-16
+author: "Jake Thompson"
+draft: false
+weight: 1
+categories:
+  - R
+  - package
+tags:
+  - Taylor Swift
+layout: single-series
+---
+
+```{r setup, include = FALSE, message = FALSE}
+library(downlit)
+library(wjake)
+library(ggplot2)
+
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  comment = "#>",
+  echo = TRUE,
+  cache = FALSE,
+  fig.align = "center",
+  fig.width = 6,
+  fig.asp = 0.618,
+  out.width = "80%"
+)
+
+set_theme(base_family = "Source Sans Pro",
+          plot_margin = margin(10, 10, 10, 10))
+```
+
+In the first post in the [taylor series](https://www.wjakethompson.com/blog/taylor/), I introduced the [taylor](https://taylor.wjakethompson.com) package for accessing data on Taylor Swift's discography.
