@@ -1,0 +1,125 @@
+---
+title: "Rethinking Congressional Apportionment"
+subtitle: ""
+excerpt: "Make yourself a ggplot2-themed clock, using ggplot2!"
+date: 2022-01-04
+author: "Jake Thompson"
+draft: false
+categories:
+  - R
+tags:
+  - ggplot2
+  - politics
+layout: single
+---
+
+```{r setup, include = FALSE, message = FALSE}
+library(tidyverse)
+library(USAboundaries)
+library(tidycensus)
+library(rvest)
+library(sf)
+library(tigris)
+library(patchwork)
+library(wjake)
+
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  comment = "#>",
+  echo = TRUE,
+  cache = FALSE,
+  fig.align = "center",
+  fig.width = 6,
+  fig.asp = 0.618,
+  out.width = "80%"
+)
+
+set_theme(base_family = "Source Sans Pro",
+          plot_margin = margin(10, 10, 10, 10))
+```
+
+
+```{r real-seats, include = FALSE}
+raw_apportionment <- read_html(
+  paste0("https://web.archive.org/web/20210930182255/", 
+         "https://en.wikipedia.org/wiki/United_States_congressional_apportionment")
+) %>%
+  html_nodes(xpath = '/html/body/div[3]/div[3]/div[5]/div[1]/table[4]') %>%  
+  html_table() %>% 
+  bind_rows()
+
+# Clean up wide messy table
+congress_actual <- raw_apportionment %>% 
+  slice(5:n()) %>% 
+  select(-Statehoodorder, state = Census, everything()) %>% 
+  mutate(across(!state, ~as.integer(.))) %>% 
+  pivot_longer(cols = !state, names_to = "census", values_to = "seats") %>% 
+  filter(!is.na(seats)) %>% 
+  mutate(state_name = state.name[match(state, state.abb)]) %>% 
+  filter(census %in% c("22nd", "23rd", "24th")) %>% 
+  mutate(year = recode(census, `22nd` = 2000, `23rd` = 2010, `24th` = 2020)) %>% 
+  select(census, year, state, state_name, seats) %>% 
+  arrange(year, state)
+```
+
+```{r state-populations, include = FALSE}
+get_state_pop <- function(year) {
+  var <- ifelse(year == 2020, "P1_001N", "P001001")
+  
+  get_decennial(geography = "state", variables = var, year = year) %>% 
+    select(geoid = GEOID, state_name = NAME, population = value) %>% 
+    mutate(year = year, .before = 1)
+}
+
+state_pop <- map_dfr(c(2000, 2010, 2020), get_state_pop) %>% 
+  mutate(state = state.abb[match(state_name, state.name)], .before = state_name) %>% 
+  mutate(state = case_when(state_name == "District of Columbia" ~ "DC",
+                           state_name == "Puerto Rico" ~ "PR",
+                           TRUE ~ state))
+```
+
+
+```{r all-seats, include = FALSE}
+hunt_hill <- function(year_dat, total = 435) {
+  year_dat <- mutate(year_dat, seats = 1L)
+  
+  while (sum(year_dat$seats) < total) {
+    year_dat <- year_dat %>% 
+      mutate(priority = population / sqrt(seats * (seats + 1)),
+             seats = case_when(priority == max(priority) ~ seats + 1L,
+                               TRUE ~ seats)) %>% 
+      select(-priority)
+  }
+  
+  return(year_dat)
+}
+
+all_seats <- state_pop %>% 
+  filter(!(state_name %in% c("District of Columbia", "Puerto Rico"))) %>% 
+  add_count(year, wt = population, name = "app_pop") %>% 
+  nest(year_dat = -c(year, app_pop)) %>% 
+  mutate(cube_total_seats = as.integer(round(app_pop ^ (1 / 3), 0) - 100),
+         cube_seats = map2(year_dat, cube_total_seats, hunt_hill)) %>% 
+  select(year, cube_seats) %>% 
+  unnest(cube_seats) %>% 
+  rename(cubic_seats = seats) %>% 
+  group_by(year) %>% 
+  mutate(wy_seats = as.integer(population / min(population))) %>% 
+  ungroup() %>% 
+  left_join(congress_actual %>% 
+              select(-census) %>% 
+              rename(real_seats = seats),
+            by = c("year", "state", "state_name"))
+```
+
+```{r seat-summary}
+all_seats %>% 
+  pivot_longer(ends_with("seats"), names_to = "method", values_to = "seats",
+               names_pattern = "(.*)_seats") %>% 
+  group_by(year, method) %>% 
+  mutate(prop_seat = seats / sum(seats),
+         people_per_seat = population / seats)
+```
+
