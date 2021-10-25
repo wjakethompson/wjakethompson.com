@@ -43,7 +43,7 @@ my_colors
 scales::show_col(my_colors)
 ```
 
-<img src="{{< blogdown/postref >}}index_files/figure-html/plain-pal-1.png" title="A series of five squares showing hexademical codes. The colors are orange, light orange, grey, light blue, and blue." alt="A series of five squares showing hexademical codes. The colors are orange, light orange, grey, light blue, and blue." width="80%" style="display: block; margin: auto;" />
+<img src="{{< blogdown/postref >}}index_files/figure-html/plain-pal-1.png" title="A series of five squares showing hexadecimal codes. The colors are orange, light orange, grey, light blue, and blue." alt="A series of five squares showing hexadecimal codes. The colors are orange, light orange, grey, light blue, and blue." width="80%" style="display: block; margin: auto;" />
 
 Using taylor, we can create a color palette with `color_palette()`.
 The `color_palette()` function returns the same vector of colors, but with a special print method to visualize the colors in the console.
