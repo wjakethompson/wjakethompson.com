@@ -1,16 +1,16 @@
 ---
-title: "Creating a custom color palette class with vctrs"
-subtitle: ""
-excerpt: "We're in screaming color! Learn how the custom color palette methods for taylor were made using vctrs."
-date: 2021-10-16
-author: "Jake Thompson"
-draft: false
-weight: 1
+title: Creating a custom color palette class with vctrs
+author: Jake Thompson
+date: '2021-10-24'
 categories:
-  - R
   - package
+  - R
 tags:
   - Taylor Swift
+excerpt: We're in screaming color! Learn how the custom color palette methods for
+  taylor were made using vctrs.
+draft: no
+weight: 1
 layout: single-series
 ---
 
