@@ -40,6 +40,11 @@ set_theme(base_family = "Source Sans Pro",
           plot_margin = margin(10, 10, 10, 10))
 ```
 
+Somehow we are already in another election year, with midterm elections coming up in November.
+These the midterms are special this year because they are the first elections after the 2020 census, with the new house apportionment.
+Inspired by [Andrew Heiss](https://twitter.com/andrewheiss), I thought I would look at some alternative methods to apportioning seats in congress and how that might have impacted past elections.
+
+`r blogdown::shortcode("tweet", "1443684142592536579")`
 
 ```{r real-seats, include = FALSE}
 raw_apportionment <- read_html(
@@ -64,7 +69,7 @@ congress_actual <- raw_apportionment %>%
   arrange(year, state)
 ```
 
-```{r state-populations, include = FALSE}
+```{r state-populations, include = FALSE, cache = TRUE}
 get_state_pop <- function(year) {
   var <- ifelse(year == 2020, "P1_001N", "P001001")
   
