@@ -12,7 +12,11 @@ tags:
 layout: single
 ---
 
-After four very long years, the 🍊 presidency finally comes to a close today as Joe Biden and Kamala Harris are inagurated as the President and Vice President. To celebrate, I thought I’d look back at the many election forecasts we had in 2020 to see which forecast performed the best, given the results we now have. To do this, we’ll look at two outcomes: prediction accuracy and model accuracy. But first, the data!
+Disclaimer: I originally wrote and planned to release this post on January 6, 2021, to celebrate Congress officially certifying Joe Biden’s win. But then there was an [insurrection](https://en.wikipedia.org/wiki/2021_United_States_Capitol_attack), and it didn’t really feel appropriate. So instead I’m releasing the one year anniversary of the race being [called by the AP](https://twitter.com/AP/status/1325112826072084480?s=20).
+
+![](https://media.giphy.com/media/MscCYdO98W5pwrKJmM/giphy.gif)
+
+To celebrate, I thought I’d look back at the many election forecasts we had in 2020 to see which forecast performed the best, given the final results. To do this, we’ll look at two outcomes: prediction accuracy and model accuracy. But first, the data!
 
 ## The Forecasts
 
@@ -213,13 +217,13 @@ pred_acc_results %>%
 
   
 
-<div id="zhnbsenhvn" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="kfzwduukry" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>@import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 html {
   font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
 
-#zhnbsenhvn .gt_table {
+#kfzwduukry .gt_table {
   display: table;
   border-collapse: collapse;
   margin-left: auto;
@@ -244,7 +248,7 @@ html {
   border-left-color: #D3D3D3;
 }
 
-#zhnbsenhvn .gt_heading {
+#kfzwduukry .gt_heading {
   background-color: #F0F0F0;
   text-align: left;
   border-bottom-color: #F0F0F0;
@@ -256,7 +260,7 @@ html {
   border-right-color: #D3D3D3;
 }
 
-#zhnbsenhvn .gt_title {
+#kfzwduukry .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -266,23 +270,23 @@ html {
   border-bottom-width: 0;
 }
 
-#zhnbsenhvn .gt_subtitle {
+#kfzwduukry .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
   padding-top: 0;
-  padding-bottom: 4px;
+  padding-bottom: 6px;
   border-top-color: #F0F0F0;
   border-top-width: 0;
 }
 
-#zhnbsenhvn .gt_bottom_border {
+#kfzwduukry .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#zhnbsenhvn .gt_col_headings {
+#kfzwduukry .gt_col_headings {
   border-top-style: solid;
   border-top-width: 3px;
   border-top-color: #F0F0F0;
@@ -297,7 +301,7 @@ html {
   border-right-color: #D3D3D3;
 }
 
-#zhnbsenhvn .gt_col_heading {
+#kfzwduukry .gt_col_heading {
   color: #333333;
   background-color: #F0F0F0;
   font-size: 80%;
@@ -317,7 +321,7 @@ html {
   overflow-x: hidden;
 }
 
-#zhnbsenhvn .gt_column_spanner_outer {
+#kfzwduukry .gt_column_spanner_outer {
   color: #333333;
   background-color: #F0F0F0;
   font-size: 80%;
@@ -329,27 +333,27 @@ html {
   padding-right: 4px;
 }
 
-#zhnbsenhvn .gt_column_spanner_outer:first-child {
+#kfzwduukry .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#zhnbsenhvn .gt_column_spanner_outer:last-child {
+#kfzwduukry .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#zhnbsenhvn .gt_column_spanner {
+#kfzwduukry .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
   vertical-align: bottom;
   padding-top: 5px;
-  padding-bottom: 6px;
+  padding-bottom: 5px;
   overflow-x: hidden;
   display: inline-block;
   width: 100%;
 }
 
-#zhnbsenhvn .gt_group_heading {
+#kfzwduukry .gt_group_heading {
   padding: 8px;
   color: #333333;
   background-color: #F0F0F0;
@@ -371,7 +375,7 @@ html {
   vertical-align: middle;
 }
 
-#zhnbsenhvn .gt_empty_group_heading {
+#kfzwduukry .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #F0F0F0;
@@ -386,15 +390,15 @@ html {
   vertical-align: middle;
 }
 
-#zhnbsenhvn .gt_from_md > :first-child {
+#kfzwduukry .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#zhnbsenhvn .gt_from_md > :last-child {
+#kfzwduukry .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#zhnbsenhvn .gt_row {
+#kfzwduukry .gt_row {
   padding-top: 3px;
   padding-bottom: 3px;
   padding-left: 5px;
@@ -413,7 +417,7 @@ html {
   overflow-x: hidden;
 }
 
-#zhnbsenhvn .gt_stub {
+#kfzwduukry .gt_stub {
   color: #333333;
   background-color: #F0F0F0;
   font-size: 80%;
@@ -425,7 +429,7 @@ html {
   padding-left: 12px;
 }
 
-#zhnbsenhvn .gt_summary_row {
+#kfzwduukry .gt_summary_row {
   color: #333333;
   background-color: #F0F0F0;
   text-transform: inherit;
@@ -435,7 +439,7 @@ html {
   padding-right: 5px;
 }
 
-#zhnbsenhvn .gt_first_summary_row {
+#kfzwduukry .gt_first_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -445,7 +449,7 @@ html {
   border-top-color: #D3D3D3;
 }
 
-#zhnbsenhvn .gt_grand_summary_row {
+#kfzwduukry .gt_grand_summary_row {
   color: #333333;
   background-color: #F0F0F0;
   text-transform: inherit;
@@ -455,7 +459,7 @@ html {
   padding-right: 5px;
 }
 
-#zhnbsenhvn .gt_first_grand_summary_row {
+#kfzwduukry .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -465,11 +469,11 @@ html {
   border-top-color: #D3D3D3;
 }
 
-#zhnbsenhvn .gt_striped {
+#kfzwduukry .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#zhnbsenhvn .gt_table_body {
+#kfzwduukry .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -478,7 +482,7 @@ html {
   border-bottom-color: #D3D3D3;
 }
 
-#zhnbsenhvn .gt_footnotes {
+#kfzwduukry .gt_footnotes {
   color: #333333;
   background-color: #F0F0F0;
   border-bottom-style: none;
@@ -492,13 +496,13 @@ html {
   border-right-color: #D3D3D3;
 }
 
-#zhnbsenhvn .gt_footnote {
+#kfzwduukry .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding: 4px;
 }
 
-#zhnbsenhvn .gt_sourcenotes {
+#kfzwduukry .gt_sourcenotes {
   color: #333333;
   background-color: #F0F0F0;
   border-bottom-style: none;
@@ -512,41 +516,41 @@ html {
   border-right-color: #D3D3D3;
 }
 
-#zhnbsenhvn .gt_sourcenote {
+#kfzwduukry .gt_sourcenote {
   font-size: 12px;
   padding: 10px;
 }
 
-#zhnbsenhvn .gt_left {
+#kfzwduukry .gt_left {
   text-align: left;
 }
 
-#zhnbsenhvn .gt_center {
+#kfzwduukry .gt_center {
   text-align: center;
 }
 
-#zhnbsenhvn .gt_right {
+#kfzwduukry .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#zhnbsenhvn .gt_font_normal {
+#kfzwduukry .gt_font_normal {
   font-weight: normal;
 }
 
-#zhnbsenhvn .gt_font_bold {
+#kfzwduukry .gt_font_bold {
   font-weight: bold;
 }
 
-#zhnbsenhvn .gt_font_italic {
+#kfzwduukry .gt_font_italic {
   font-style: italic;
 }
 
-#zhnbsenhvn .gt_super {
+#kfzwduukry .gt_super {
   font-size: 65%;
 }
 
-#zhnbsenhvn .gt_footnote_marks {
+#kfzwduukry .gt_footnote_marks {
   font-style: italic;
   font-weight: normal;
   font-size: 65%;
@@ -709,7 +713,7 @@ For an evaluation of model accuracy, we assume that the estimated probabilities 
 
 <details>
 <summary>
-Code to reproduce
+Simulation code
 </summary>
 
 ``` r
@@ -817,6 +821,15 @@ sim_election <- raw_data %>%
               real = real_election))
 ```
 
+</details>
+
+First, we’ll look at the expected number of electoral votes. In the figure below, the histograms show the expected number of electoral votes for Biden under each model, with the blue line representing the 306 he actually received. One way to assess the model accuracy is to evaluate the proportion of simulations where the number of electoral votes received by Biden is greater than the observed electoral votes. Number very close to 0 or 1 indicate poor fit (i.e., the observed number is well outside the expected distribution).
+
+<details>
+<summary>
+Code to reproduce
+</summary>
+
 ``` r
 library(ggtext)
 
@@ -855,3 +868,5 @@ ggsave2(p, knitr::fig_path(".png"), width = 6, height = 6)
 </details>
 
 <img src="{{< blogdown/postref >}}index_files/figure-html/ec-expected-1.png" title="Expected electoral votes for each forecast." alt="Expected electoral votes for each forecast." width="100%" style="display: block; margin: auto;" />
+
+Expected correct picks
