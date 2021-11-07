@@ -128,17 +128,17 @@ library(here)
 library(fs)
 
 results_2020 <-
-  here("content", "blog", "2021-11-03-2020-election-forecasts",
+  here("content", "blog", "2021-11-07-2020-election-forecasts",
        "data", "results.csv") %>%
   read_csv(col_types = cols())
 
 ev_2020 <-
-  here("content", "blog", "2021-11-03-2020-election-forecasts",
+  here("content", "blog", "2021-11-07-2020-election-forecasts",
        "data", "electoral-votes.csv") %>%
   read_csv(col_types = cols())
 
 raw_data <-
-  dir_ls(here("content", "blog", "2021-11-03-2020-election-forecasts",
+  dir_ls(here("content", "blog", "2021-11-07-2020-election-forecasts",
             "data", "forecasts")) %>%
   map_dfr(read_csv, col_types = cols()) %>%
   full_join(ev_2020, by = c("state_name", "state_abbr")) %>%
