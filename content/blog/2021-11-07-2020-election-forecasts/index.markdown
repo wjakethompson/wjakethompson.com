@@ -217,13 +217,13 @@ pred_acc_results %>%
 
   
 
-<div id="pxtudnbspw" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="mkzatlngwm" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>@import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 html {
   font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
 
-#pxtudnbspw .gt_table {
+#mkzatlngwm .gt_table {
   display: table;
   border-collapse: collapse;
   margin-left: auto;
@@ -248,7 +248,7 @@ html {
   border-left-color: #D3D3D3;
 }
 
-#pxtudnbspw .gt_heading {
+#mkzatlngwm .gt_heading {
   background-color: #F0F0F0;
   text-align: left;
   border-bottom-color: #F0F0F0;
@@ -260,7 +260,7 @@ html {
   border-right-color: #D3D3D3;
 }
 
-#pxtudnbspw .gt_title {
+#mkzatlngwm .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -270,7 +270,7 @@ html {
   border-bottom-width: 0;
 }
 
-#pxtudnbspw .gt_subtitle {
+#mkzatlngwm .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -280,13 +280,13 @@ html {
   border-top-width: 0;
 }
 
-#pxtudnbspw .gt_bottom_border {
+#mkzatlngwm .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#pxtudnbspw .gt_col_headings {
+#mkzatlngwm .gt_col_headings {
   border-top-style: solid;
   border-top-width: 3px;
   border-top-color: #F0F0F0;
@@ -301,7 +301,7 @@ html {
   border-right-color: #D3D3D3;
 }
 
-#pxtudnbspw .gt_col_heading {
+#mkzatlngwm .gt_col_heading {
   color: #333333;
   background-color: #F0F0F0;
   font-size: 80%;
@@ -321,7 +321,7 @@ html {
   overflow-x: hidden;
 }
 
-#pxtudnbspw .gt_column_spanner_outer {
+#mkzatlngwm .gt_column_spanner_outer {
   color: #333333;
   background-color: #F0F0F0;
   font-size: 80%;
@@ -333,15 +333,15 @@ html {
   padding-right: 4px;
 }
 
-#pxtudnbspw .gt_column_spanner_outer:first-child {
+#mkzatlngwm .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#pxtudnbspw .gt_column_spanner_outer:last-child {
+#mkzatlngwm .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#pxtudnbspw .gt_column_spanner {
+#mkzatlngwm .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -353,7 +353,7 @@ html {
   width: 100%;
 }
 
-#pxtudnbspw .gt_group_heading {
+#mkzatlngwm .gt_group_heading {
   padding: 8px;
   color: #333333;
   background-color: #F0F0F0;
@@ -375,7 +375,7 @@ html {
   vertical-align: middle;
 }
 
-#pxtudnbspw .gt_empty_group_heading {
+#mkzatlngwm .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #F0F0F0;
@@ -390,15 +390,15 @@ html {
   vertical-align: middle;
 }
 
-#pxtudnbspw .gt_from_md > :first-child {
+#mkzatlngwm .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#pxtudnbspw .gt_from_md > :last-child {
+#mkzatlngwm .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#pxtudnbspw .gt_row {
+#mkzatlngwm .gt_row {
   padding-top: 3px;
   padding-bottom: 3px;
   padding-left: 5px;
@@ -417,7 +417,7 @@ html {
   overflow-x: hidden;
 }
 
-#pxtudnbspw .gt_stub {
+#mkzatlngwm .gt_stub {
   color: #333333;
   background-color: #F0F0F0;
   font-size: 80%;
@@ -429,7 +429,7 @@ html {
   padding-left: 12px;
 }
 
-#pxtudnbspw .gt_summary_row {
+#mkzatlngwm .gt_summary_row {
   color: #333333;
   background-color: #F0F0F0;
   text-transform: inherit;
@@ -439,7 +439,7 @@ html {
   padding-right: 5px;
 }
 
-#pxtudnbspw .gt_first_summary_row {
+#mkzatlngwm .gt_first_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -449,7 +449,7 @@ html {
   border-top-color: #D3D3D3;
 }
 
-#pxtudnbspw .gt_grand_summary_row {
+#mkzatlngwm .gt_grand_summary_row {
   color: #333333;
   background-color: #F0F0F0;
   text-transform: inherit;
@@ -459,7 +459,7 @@ html {
   padding-right: 5px;
 }
 
-#pxtudnbspw .gt_first_grand_summary_row {
+#mkzatlngwm .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -469,11 +469,11 @@ html {
   border-top-color: #D3D3D3;
 }
 
-#pxtudnbspw .gt_striped {
+#mkzatlngwm .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#pxtudnbspw .gt_table_body {
+#mkzatlngwm .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -482,7 +482,7 @@ html {
   border-bottom-color: #D3D3D3;
 }
 
-#pxtudnbspw .gt_footnotes {
+#mkzatlngwm .gt_footnotes {
   color: #333333;
   background-color: #F0F0F0;
   border-bottom-style: none;
@@ -496,13 +496,13 @@ html {
   border-right-color: #D3D3D3;
 }
 
-#pxtudnbspw .gt_footnote {
+#mkzatlngwm .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding: 4px;
 }
 
-#pxtudnbspw .gt_sourcenotes {
+#mkzatlngwm .gt_sourcenotes {
   color: #333333;
   background-color: #F0F0F0;
   border-bottom-style: none;
@@ -516,41 +516,41 @@ html {
   border-right-color: #D3D3D3;
 }
 
-#pxtudnbspw .gt_sourcenote {
+#mkzatlngwm .gt_sourcenote {
   font-size: 12px;
   padding: 10px;
 }
 
-#pxtudnbspw .gt_left {
+#mkzatlngwm .gt_left {
   text-align: left;
 }
 
-#pxtudnbspw .gt_center {
+#mkzatlngwm .gt_center {
   text-align: center;
 }
 
-#pxtudnbspw .gt_right {
+#mkzatlngwm .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#pxtudnbspw .gt_font_normal {
+#mkzatlngwm .gt_font_normal {
   font-weight: normal;
 }
 
-#pxtudnbspw .gt_font_bold {
+#mkzatlngwm .gt_font_bold {
   font-weight: bold;
 }
 
-#pxtudnbspw .gt_font_italic {
+#mkzatlngwm .gt_font_italic {
   font-style: italic;
 }
 
-#pxtudnbspw .gt_super {
+#mkzatlngwm .gt_super {
   font-size: 65%;
 }
 
-#pxtudnbspw .gt_footnote_marks {
+#mkzatlngwm .gt_footnote_marks {
   font-style: italic;
   font-weight: normal;
   font-size: 65%;
@@ -689,7 +689,7 @@ raw_data %>%
                   breaks = c(1, 10, 20, 40)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
   expand_limits(x = c(0, 1), y = c(0, 1)) +
-  labs(x = "Economist", y = "FiveThirtyEight",
+  labs(x = "Economist Penalty", y = "FiveThirtyEight Penalty",
        title = "Brier Penalties for Each Prediction",
        subtitle = "Economist predictions hurt by un-forecasted congressional districts",
        caption = "Plot: @wjakethompson") +
@@ -709,7 +709,7 @@ ggsave2(p, knitr::fig_path(".png"), width = 6, height = 6)
 
 ## Model Accuracy
 
-For an evaluation of model accuracy, we assume that the estimated probabilities from each forecast are true. Using these probabilities, we then simulate the election hundreds or thousands of times. From each simulation, we can then calculate the number of electoral votes won by each candidate and the number of states that were picked incorrectly. Across all simulations, we can then compare the distributions of the summary statistics to the observed outcomes.
+For an evaluation of model accuracy, we assume that the estimated probabilities from each forecast are true. Using these probabilities, we then simulate the election hundreds or thousands of times. From each simulation, we can then calculate the number of electoral votes won by each candidate. Across all simulations, we can then compare the distributions of the expected electoral college votes to the observed outcome.
 
 <details>
 <summary>
@@ -823,7 +823,7 @@ sim_election <- raw_data %>%
 
 </details>
 
-First, we’ll look at the expected number of electoral votes. In the figure below, the histograms show the expected number of electoral votes for Biden under each model, with the blue line representing the 306 he actually received. One way to assess the model accuracy is to evaluate the proportion of simulations where the number of electoral votes received by Biden is greater than the observed electoral votes. Number very close to 0 or 1 indicate poor fit (i.e., the observed number is well outside the expected distribution).
+In the figure below, the histograms show the expected number of electoral votes for Biden under each model, with the blue line representing the 306 he actually received. One way to assess the model accuracy is to evaluate the proportion of simulations where the number of electoral votes received by Biden is greater than the observed electoral votes. Numbers very close to 0 or 1 indicate poor fit (i.e., the observed number is well outside the expected distribution).
 
 <details>
 <summary>
@@ -869,4 +869,8 @@ ggsave2(p, knitr::fig_path(".png"), width = 6, height = 6)
 
 <img src="{{< blogdown/postref >}}index_files/figure-html/ec-expected-1.png" title="Expected electoral votes for each forecast." alt="Expected electoral votes for each forecast." width="100%" style="display: block; margin: auto;" />
 
-Expected correct picks
+Most models over estimated the number of electoral votes Biden would receive, with the bulk of the distribution shifted to the right of the blue line. Only the forecasts from Plural Vote and PredictIt got had an expected distribution close to centered on the observed outcome. However, the observed 306 was within the middle 80% of the Electoral Polls, New Statesman, Progress Campaign, and Reed forecasts as well, indicating that those models also did an okay job.
+
+## Final Thoughts
+
+Taken all together, the Electoral Polls forecast and the market derived probabilities from PredictIt showed the best performance for both prediction and model accuracy. I’m still unsure how useful these forecasts are in practice, but I don’t think they’re going anywhere anytime soon. And with the mid-term elections coming up in in 2022, it’s good to be thinking about how accurate different forecasts might be!

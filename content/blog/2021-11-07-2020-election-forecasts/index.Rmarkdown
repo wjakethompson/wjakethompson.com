@@ -250,7 +250,7 @@ raw_data %>%
                   breaks = c(1, 10, 20, 40)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed") +
   expand_limits(x = c(0, 1), y = c(0, 1)) +
-  labs(x = "Economist", y = "FiveThirtyEight",
+  labs(x = "Economist Penalty", y = "FiveThirtyEight Penalty",
        title = "Brier Penalties for Each Prediction",
        subtitle = "Economist predictions hurt by un-forecasted congressional districts",
        caption = "Plot: @wjakethompson") +
@@ -273,7 +273,7 @@ knitr::include_graphics(knitr::fig_chunk("brier-compare", "png"))
 
 ## Model Accuracy
 
-For an evaluation of model accuracy, we assume that the estimated probabilities from each forecast are true. Using these probabilities, we then simulate the election hundreds or thousands of times. From each simulation, we can then calculate the number of electoral votes won by each candidate and the number of states that were picked incorrectly. Across all simulations, we can then compare the distributions of the summary statistics to the observed outcomes. 
+For an evaluation of model accuracy, we assume that the estimated probabilities from each forecast are true. Using these probabilities, we then simulate the election hundreds or thousands of times. From each simulation, we can then calculate the number of electoral votes won by each candidate. Across all simulations, we can then compare the distributions of the expected electoral college votes to the observed outcome. 
 
 <details><summary>Simulation code</summary>
 
@@ -384,11 +384,11 @@ sim_election <- raw_data %>%
 
 </details>
 
-First, we'll look at the expected number of electoral votes. In the figure below, the histograms show the expected number of electoral votes for Biden under each model, with the blue line representing the 306 he actually received. One way to assess the model accuracy is to evaluate the proportion of simulations where the number of electoral votes received by Biden is greater than the observed electoral votes. Number very close to 0 or 1 indicate poor fit (i.e., the observed number is well outside the expected distribution).
+In the figure below, the histograms show the expected number of electoral votes for Biden under each model, with the blue line representing the 306 he actually received. One way to assess the model accuracy is to evaluate the proportion of simulations where the number of electoral votes received by Biden is greater than the observed electoral votes. Numbers very close to 0 or 1 indicate poor fit (i.e., the observed number is well outside the expected distribution).
 
 <details><summary>Code to reproduce</summary>
 
-```{r ec-expected, eval = FALSE}
+```{r ec-expected}
 library(ggtext)
 
 sim_election %>%
@@ -429,4 +429,8 @@ ggsave2(p, knitr::fig_path(".png"), width = 6, height = 6)
 knitr::include_graphics(knitr::fig_chunk("ec-expected", "png"))
 ```
 
-Expected correct picks
+Most models over estimated the number of electoral votes Biden would receive, with the bulk of the distribution shifted to the right of the blue line. Only the forecasts from Plural Vote and PredictIt got had an expected distribution close to centered on the observed outcome. However, the observed 306 was within the middle 80% of the Electoral Polls, New Statesman, Progress Campaign, and Reed forecasts as well, indicating that those models also did an okay job.
+
+## Final Thoughts
+
+Taken all together, the Electoral Polls forecast and the market derived probabilities from PredictIt showed the best performance for both prediction and model accuracy. I'm still unsure how useful these forecasts are in practice, but I don't think they're going anywhere anytime soon. And with the mid-term elections coming up in in 2022, it's good to be thinking about how accurate different forecasts might be!
