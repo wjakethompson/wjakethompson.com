@@ -74,7 +74,7 @@ tibble(prob = seq(0, 1, by = 0.01)) %>%
   pivot_longer(cols = c(log_loss, brier), names_to = "measure",
                values_to = "penalty") %>%
   ggplot(aes(x = prob, y = penalty)) +
-  geom_line(aes(color = measure), na.rm = TRUE) +
+  geom_line(aes(color = measure), na.rm = TRUE, size = 2) +
   scale_color_wjake(labels = c("Brier Score", "Log-Loss")) +
   labs(x = "Event Probability", y = "Penalty", color = NULL,
        title = "Penalty Score for Observed Event",
@@ -217,13 +217,13 @@ pred_acc_results %>%
 
   
 
-<div id="mkzatlngwm" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<div id="ihdlxaecoe" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
 <style>@import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 html {
   font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
 }
 
-#mkzatlngwm .gt_table {
+#ihdlxaecoe .gt_table {
   display: table;
   border-collapse: collapse;
   margin-left: auto;
@@ -248,7 +248,7 @@ html {
   border-left-color: #D3D3D3;
 }
 
-#mkzatlngwm .gt_heading {
+#ihdlxaecoe .gt_heading {
   background-color: #F0F0F0;
   text-align: left;
   border-bottom-color: #F0F0F0;
@@ -260,7 +260,7 @@ html {
   border-right-color: #D3D3D3;
 }
 
-#mkzatlngwm .gt_title {
+#ihdlxaecoe .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -270,7 +270,7 @@ html {
   border-bottom-width: 0;
 }
 
-#mkzatlngwm .gt_subtitle {
+#ihdlxaecoe .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -280,13 +280,13 @@ html {
   border-top-width: 0;
 }
 
-#mkzatlngwm .gt_bottom_border {
+#ihdlxaecoe .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
 }
 
-#mkzatlngwm .gt_col_headings {
+#ihdlxaecoe .gt_col_headings {
   border-top-style: solid;
   border-top-width: 3px;
   border-top-color: #F0F0F0;
@@ -301,7 +301,7 @@ html {
   border-right-color: #D3D3D3;
 }
 
-#mkzatlngwm .gt_col_heading {
+#ihdlxaecoe .gt_col_heading {
   color: #333333;
   background-color: #F0F0F0;
   font-size: 80%;
@@ -321,7 +321,7 @@ html {
   overflow-x: hidden;
 }
 
-#mkzatlngwm .gt_column_spanner_outer {
+#ihdlxaecoe .gt_column_spanner_outer {
   color: #333333;
   background-color: #F0F0F0;
   font-size: 80%;
@@ -333,15 +333,15 @@ html {
   padding-right: 4px;
 }
 
-#mkzatlngwm .gt_column_spanner_outer:first-child {
+#ihdlxaecoe .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#mkzatlngwm .gt_column_spanner_outer:last-child {
+#ihdlxaecoe .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#mkzatlngwm .gt_column_spanner {
+#ihdlxaecoe .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #D3D3D3;
@@ -353,7 +353,7 @@ html {
   width: 100%;
 }
 
-#mkzatlngwm .gt_group_heading {
+#ihdlxaecoe .gt_group_heading {
   padding: 8px;
   color: #333333;
   background-color: #F0F0F0;
@@ -375,7 +375,7 @@ html {
   vertical-align: middle;
 }
 
-#mkzatlngwm .gt_empty_group_heading {
+#ihdlxaecoe .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #F0F0F0;
@@ -390,15 +390,15 @@ html {
   vertical-align: middle;
 }
 
-#mkzatlngwm .gt_from_md > :first-child {
+#ihdlxaecoe .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#mkzatlngwm .gt_from_md > :last-child {
+#ihdlxaecoe .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#mkzatlngwm .gt_row {
+#ihdlxaecoe .gt_row {
   padding-top: 3px;
   padding-bottom: 3px;
   padding-left: 5px;
@@ -417,7 +417,7 @@ html {
   overflow-x: hidden;
 }
 
-#mkzatlngwm .gt_stub {
+#ihdlxaecoe .gt_stub {
   color: #333333;
   background-color: #F0F0F0;
   font-size: 80%;
@@ -429,7 +429,7 @@ html {
   padding-left: 12px;
 }
 
-#mkzatlngwm .gt_summary_row {
+#ihdlxaecoe .gt_summary_row {
   color: #333333;
   background-color: #F0F0F0;
   text-transform: inherit;
@@ -439,7 +439,7 @@ html {
   padding-right: 5px;
 }
 
-#mkzatlngwm .gt_first_summary_row {
+#ihdlxaecoe .gt_first_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -449,7 +449,7 @@ html {
   border-top-color: #D3D3D3;
 }
 
-#mkzatlngwm .gt_grand_summary_row {
+#ihdlxaecoe .gt_grand_summary_row {
   color: #333333;
   background-color: #F0F0F0;
   text-transform: inherit;
@@ -459,7 +459,7 @@ html {
   padding-right: 5px;
 }
 
-#mkzatlngwm .gt_first_grand_summary_row {
+#ihdlxaecoe .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -469,11 +469,11 @@ html {
   border-top-color: #D3D3D3;
 }
 
-#mkzatlngwm .gt_striped {
+#ihdlxaecoe .gt_striped {
   background-color: rgba(128, 128, 128, 0.05);
 }
 
-#mkzatlngwm .gt_table_body {
+#ihdlxaecoe .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #D3D3D3;
@@ -482,7 +482,7 @@ html {
   border-bottom-color: #D3D3D3;
 }
 
-#mkzatlngwm .gt_footnotes {
+#ihdlxaecoe .gt_footnotes {
   color: #333333;
   background-color: #F0F0F0;
   border-bottom-style: none;
@@ -496,13 +496,13 @@ html {
   border-right-color: #D3D3D3;
 }
 
-#mkzatlngwm .gt_footnote {
+#ihdlxaecoe .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding: 4px;
 }
 
-#mkzatlngwm .gt_sourcenotes {
+#ihdlxaecoe .gt_sourcenotes {
   color: #333333;
   background-color: #F0F0F0;
   border-bottom-style: none;
@@ -516,41 +516,41 @@ html {
   border-right-color: #D3D3D3;
 }
 
-#mkzatlngwm .gt_sourcenote {
+#ihdlxaecoe .gt_sourcenote {
   font-size: 12px;
   padding: 10px;
 }
 
-#mkzatlngwm .gt_left {
+#ihdlxaecoe .gt_left {
   text-align: left;
 }
 
-#mkzatlngwm .gt_center {
+#ihdlxaecoe .gt_center {
   text-align: center;
 }
 
-#mkzatlngwm .gt_right {
+#ihdlxaecoe .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#mkzatlngwm .gt_font_normal {
+#ihdlxaecoe .gt_font_normal {
   font-weight: normal;
 }
 
-#mkzatlngwm .gt_font_bold {
+#ihdlxaecoe .gt_font_bold {
   font-weight: bold;
 }
 
-#mkzatlngwm .gt_font_italic {
+#ihdlxaecoe .gt_font_italic {
   font-style: italic;
 }
 
-#mkzatlngwm .gt_super {
+#ihdlxaecoe .gt_super {
   font-size: 65%;
 }
 
-#mkzatlngwm .gt_footnote_marks {
+#ihdlxaecoe .gt_footnote_marks {
   font-style: italic;
   font-weight: normal;
   font-size: 65%;

@@ -82,7 +82,7 @@ Unlike, the log-loss, the penalty for the Brier score is almost linear. Below we
 
 <details><summary>Code to reproduce</summary>
 
-```{r penalty-comp, eval = FALSE}
+```{r penalty-comp}
 tibble(prob = seq(0, 1, by = 0.01)) %>%
   mutate(log_loss = -1 * log(prob),
          brier = (prob - 1) ^ 2,
@@ -91,7 +91,7 @@ tibble(prob = seq(0, 1, by = 0.01)) %>%
   pivot_longer(cols = c(log_loss, brier), names_to = "measure",
                values_to = "penalty") %>%
   ggplot(aes(x = prob, y = penalty)) +
-  geom_line(aes(color = measure), na.rm = TRUE) +
+  geom_line(aes(color = measure), na.rm = TRUE, size = 2) +
   scale_color_wjake(labels = c("Brier Score", "Log-Loss")) +
   labs(x = "Event Probability", y = "Penalty", color = NULL,
        title = "Penalty Score for Observed Event",
