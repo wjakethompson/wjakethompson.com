@@ -208,3 +208,24 @@ header.site-header {
 header.headroom {
   opacity: 1;
 }
+
+/* gt adjustments ------------------------------------------------------------*/
+table.gt_table {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.gt_sourcenote {
+  font-size: .7rem;
+  padding: 10px 10px 10px 0px;
+}
+
+.gt_title {
+  text-align: left;
+  font-size: 1.2rem;
+}
+
+.gt_col_heading {
+  text-transform: uppercase;
+  font-size: .9rem;
+}
