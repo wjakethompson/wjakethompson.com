@@ -59,6 +59,9 @@ First, we will get data on the actual number of seats appropriated to each state
 This code comes directly from [Dr. Heiss](https://gist.github.com/andrewheiss/5f89847f617eb825a08de6b02a053188).
 
 ```{r real-seats, cache = TRUE}
+library(tidyverse)
+library(rvest)
+
 raw_apportionment <- read_html(
   paste0("https://web.archive.org/web/20210930182255/", 
          "https://en.wikipedia.org/wiki/United_States_congressional_apportionment")
@@ -81,12 +84,12 @@ congress_actual <- raw_apportionment %>%
   arrange(year, state)
 ```
 
+<details><summary>Code to reproduce</summary>
 
-
-```{r echo = FALSE}
+```{r make-real-dt}
 library(DT)
 
-congress_actual %>% 
+real_dt <- congress_actual %>% 
   select(state_name, year, seats) %>% 
   pivot_wider(names_from = year, values_from = seats) %>% 
   datatable(rownames = FALSE,
@@ -101,13 +104,179 @@ congress_actual %>%
             ))
 ```
 
+</details><br>
 
+```{r echo = FALSE}
+real_dt
+```
+
+Next, in order to examine apportionment with alternate methods, we need state-level population data.
+This is straightforward to get thanks to the great [tidycensus](https://github.com/walkerke/tidycensus) package from [Kyle Walker](https://twitter.com/kyle_e_walker).
+
+```{r state-populations, cache = TRUE}
+library(tidycensus)
+
+get_state_pop <- function(year) {
+  var <- ifelse(year == 2020, "P1_001N", "P001001")
+  
+  get_decennial(geography = "state", variables = var, year = year) %>% 
+    select(geoid = GEOID, state_name = NAME, population = value) %>% 
+    mutate(year = year, .before = 1)
+}
+
+state_pop <- map_dfr(c(2000, 2010, 2020), get_state_pop) %>% 
+  mutate(state = state.abb[match(state_name, state.name)], .before = state_name) %>% 
+  mutate(state = case_when(state_name == "District of Columbia" ~ "DC",
+                           state_name == "Puerto Rico" ~ "PR",
+                           TRUE ~ state))
+```
+
+<details><summary>Code to reproduce</summary>
+
+```{r make-pop-dt}
+library(DT)
+
+pop_dt <- state_pop %>% 
+  select(state_name, year, population) %>% 
+  mutate(population = prettyNum(population, big.mark = ",")) %>% 
+  pivot_wider(names_from = year, values_from = population) %>% 
+  datatable(rownames = FALSE,
+            colnames = c("State", "2000", "2010", "2020"),
+            options = list(
+              autoWidth = TRUE,
+              columnDefs = list(list(className = "dt-left", targets = 0),
+                                list(className = "dt-right", targets = 1:3),
+                                list(width = "40%", targets = 0),
+                                list(width = "20%", targets = 1:3)),
+              pageLength = 10,
+              lengthMenu = c(5, 10, 25, 50)
+            ))
+```
+
+</details><br>
+
+```{r echo = FALSE}
+pop_dt
+```
+
+That that we have all the data, let's define our apportionment methods.
 
 ### Current method
 
+Until 1921, the number of seats in the House of Representative increased every 10 years when census was completed.
+The total number was raised to 435 in 1912, following the 1910 census.
+However, congress failed to reapportion the House in 1921.
+A compromise was struck in 1929 to cap the House membership at 435, which is where it has stayed ever since.
+Because the number of representatives has stayed the same but population of the United States has increased the average number of constituents in each district has increased from approximately 210,000 in 1913 to over 760,000 in 2023 (following the 2022 midterms).
 
+The 435 members are split across the 50 states using the [Huntington-Hill method](https://en.wikipedia.org/wiki/Huntington%E2%80%93Hill_method).
+This method minimizes the percentage differences in the number of constituents per representative.
+It works by assigning a "priority" number for each seat, based on each state's population and the current number of seats allocated to each state.
+
+To illustrate, let's look at the 2020 census data.
+We start by assigning each state a single seat to ensure that every state has at least one representative.
+
+```{r initial-assign}
+seats2020 <- state_pop %>% 
+  filter(!state_name %in% c("District of Columbia", "Puerto Rico"),
+         year == 2020) %>% 
+  mutate(seats = 1)
+
+seats2020
+```
+
+We can then calculate the priority number for each state, $A_s$, as
+
+$$
+A_{{s}}={\frac  {P_s}{{\sqrt  {n_s(n_s+1)}}}}
+$$
+where $P_s$ is the state's population and $n_s$ is the number of seats currently allocated the state.
+
+```{r first-priority}
+seats2020 %>% 
+  mutate(priority = population / sqrt(seats * seats + 1)) %>% 
+  arrange(desc(priority))
+```
+
+California has the highest priority number, so they receive the next seat.
+
+```{r first-allocation}
+seats2020 <- seats2020 %>%
+  mutate(priority = population / sqrt(seats * seats + 1),
+         seats = case_when(priority == max(priority) ~ seats + 1,
+                           TRUE ~ seats))
+
+seats2020
+```
+
+We then repeat the process by calculating a new set of priority numbers.
+
+```{r second-priority}
+seats2020 %>% 
+  mutate(priority = population / sqrt(seats * seats + 1)) %>% 
+  arrange(desc(priority))
+```
+
+Now Texas has the highest priority number, so they receive the next seat.
+This process repeats over and over again until the total number of seats reaches 435.
+To automate this process, we can write a function, `hunt_hill()` that will data a data frame of population data and the total number of seats and return the same data frame with the number of allocated seats.
+
+```{r hunt-hill}
+hunt_hill <- function(year_dat, total = 435) {
+  year_dat <- mutate(year_dat, seats = 1L)
+  
+  while (sum(year_dat$seats) < total) {
+    year_dat <- year_dat %>% 
+      mutate(priority = population / sqrt(seats * (seats + 1)),
+             seats = case_when(priority == max(priority) ~ seats + 1L,
+                               TRUE ~ seats)) %>% 
+      select(-priority)
+  }
+  
+  return(year_dat)
+}
+```
+
+To confirm, let's run the 2020 census through this function, and then compared the results the real allocation.
+
+```{r all-2020-seats}
+seats2020 <- state_pop %>% 
+  filter(!state_name %in% c("District of Columbia", "Puerto Rico"),
+         year == 2020) %>% 
+  hunt_hill(total = 435)
+
+seats2020
+```
+
+```{r compare-seats}
+real_seats <- congress_actual %>% 
+  filter(year == 2020) %>% 
+  select(state_name, real_seats = seats)
+
+compare_seats <- left_join(seats2020, real_seats, by = "state_name")
+
+all(compare_seats$seats == compare_seats$real_seats)
+```
 
 ### Cube root rule
+
+The first alternative we'll consider is the [cube root rule](https://en.wikipedia.org/wiki/Cube_root_rule).
+This method is similar to the current method of apportionment, in that the Huntington-Hill algorithm is used to assign seats to each state.
+However, rather than the total number of representatives be fixed at 435, the total is determined by taking the cube root of the total population.
+This rule is derived from the [findings of Rein Taagepera](https://www.sciencedirect.com/science/article/abs/pii/0049089X72900841?via%3Dihub), who found that around the world the size of national assemblies tends to be around the cube root of the total population.
+
+In the United States, we have two legislative bodies, the Senate and the House of Representatives.
+The Senate is made up of 100 representatives (2 from each of the 50 states).
+Therefore, when using the cube root rule, the number of seats in the House of Representatives is calculated as the cube root of the total population minus 100.
+
+```{r}
+state_pop %>% 
+  filter(!state_name %in% c("District of Columbia", "Puerto Rico")) %>%
+  add_count(year, wt = population, name = "total_pop") %>% 
+  nest(state_pop = -c(year, total_pop)) %>% 
+  mutate(total_reps = total_pop ^ (1 / 3),
+         house_seats = total_reps - 100)
+```
 
 
 
@@ -129,38 +298,7 @@ congress_actual %>%
 
 ### 2020 census
 
-```{r state-populations, include = FALSE, cache = TRUE}
-get_state_pop <- function(year) {
-  var <- ifelse(year == 2020, "P1_001N", "P001001")
-  
-  get_decennial(geography = "state", variables = var, year = year) %>% 
-    select(geoid = GEOID, state_name = NAME, population = value) %>% 
-    mutate(year = year, .before = 1)
-}
-
-state_pop <- map_dfr(c(2000, 2010, 2020), get_state_pop) %>% 
-  mutate(state = state.abb[match(state_name, state.name)], .before = state_name) %>% 
-  mutate(state = case_when(state_name == "District of Columbia" ~ "DC",
-                           state_name == "Puerto Rico" ~ "PR",
-                           TRUE ~ state))
-```
-
-
 ```{r all-seats, include = FALSE}
-hunt_hill <- function(year_dat, total = 435) {
-  year_dat <- mutate(year_dat, seats = 1L)
-  
-  while (sum(year_dat$seats) < total) {
-    year_dat <- year_dat %>% 
-      mutate(priority = population / sqrt(seats * (seats + 1)),
-             seats = case_when(priority == max(priority) ~ seats + 1L,
-                               TRUE ~ seats)) %>% 
-      select(-priority)
-  }
-  
-  return(year_dat)
-}
-
 all_seats <- state_pop %>% 
   filter(!(state_name %in% c("District of Columbia", "Puerto Rico"))) %>% 
   add_count(year, wt = population, name = "app_pop") %>% 
