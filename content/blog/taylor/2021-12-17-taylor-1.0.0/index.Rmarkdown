@@ -128,3 +128,5 @@ There were also a number of minor improvements:
 
 * Wildest Dreams (Taylor's Version) has been added as a non-ablum song. Presumably, this song will eventually move to *1989 (Taylor's Version)*.
 * [`color_palette()`](`r autolink_url("taylor::color_palette")`) now preserves color names, either through values in [`colors()`](`r autolink_url("grDevices::colors")`), or a named vector supplied to `pal`.
+
+See the [changelog](https://taylor.wjakethompson.com/news/index.html) for a complete list of changes.
