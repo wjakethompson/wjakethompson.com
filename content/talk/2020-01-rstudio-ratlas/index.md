@@ -55,7 +55,7 @@ Here are links to the various (and very good!) resources I recommend for buildin
     * Section 3.4 of Yihui Xie, J. J. Allaire, and Garrett Grolemund's [*R Markdown: The Definitive Guide*](https://bookdown.org/yihui/rmarkdown/word-document.html)
 * For polishing reports with custom [`ggplot2`](https://ggplot2.tidyverse.org) themes and default [`knitr`](https://yihui.org/knitr/) chunk options:
     * Bob Rudis's [`hrbrthemes`](https://github.com/hrbrmstr/hrbrthemes), Emily Riederer's [`Rtistic`](https://github.com/emilyriederer/rtistic), and the BBC's [`bbplot`](https://github.com/bbc/bbplot) all provide great examples and/or templates for creating `ggplot2` themes and wrapping them into an R package.
-    * A comprehensive list of availalbe {knitr} chunk options are availabe on [Yihui Xie's website](https://yihui.org/knitr/options/).
+    * A comprehensive list of available {knitr} chunk options are available on [Yihui Xie's website](https://yihui.org/knitr/options/).
 * Finally, examples of wrapping R Markdown templates and/or {ggplot2} themes into packages for an organization:
     * The [`ratlas`](https://github.com/atlas-aai/ratlas) package used by Accessible Teaching, Learning, and Assessment Systems at the University of Kansas.
     * The [`sorensonimpact`](https://github.com/Sorenson-Impact/sorensonimpact) package used by the Sorenson Impact Center at the University of Utah.
