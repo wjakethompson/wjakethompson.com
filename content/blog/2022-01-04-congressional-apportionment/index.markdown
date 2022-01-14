@@ -31,6 +31,24 @@ layout: single
 <script src="{{< blogdown/postref >}}index_files/dt-core/js/jquery.dataTables.min.js"></script>
 <link href="{{< blogdown/postref >}}index_files/crosstalk/css/crosstalk.min.css" rel="stylesheet" />
 <script src="{{< blogdown/postref >}}index_files/crosstalk/js/crosstalk.min.js"></script>
+<script src="{{< blogdown/postref >}}index_files/htmlwidgets/htmlwidgets.js"></script>
+<link href="{{< blogdown/postref >}}index_files/datatables-css/datatables-crosstalk.css" rel="stylesheet" />
+<script src="{{< blogdown/postref >}}index_files/datatables-binding/datatables.js"></script>
+<script src="{{< blogdown/postref >}}index_files/jquery/jquery-3.6.0.min.js"></script>
+<link href="{{< blogdown/postref >}}index_files/dt-core/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="{{< blogdown/postref >}}index_files/dt-core/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="{{< blogdown/postref >}}index_files/dt-core/js/jquery.dataTables.min.js"></script>
+<link href="{{< blogdown/postref >}}index_files/crosstalk/css/crosstalk.min.css" rel="stylesheet" />
+<script src="{{< blogdown/postref >}}index_files/crosstalk/js/crosstalk.min.js"></script>
+<script src="{{< blogdown/postref >}}index_files/htmlwidgets/htmlwidgets.js"></script>
+<link href="{{< blogdown/postref >}}index_files/datatables-css/datatables-crosstalk.css" rel="stylesheet" />
+<script src="{{< blogdown/postref >}}index_files/datatables-binding/datatables.js"></script>
+<script src="{{< blogdown/postref >}}index_files/jquery/jquery-3.6.0.min.js"></script>
+<link href="{{< blogdown/postref >}}index_files/dt-core/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="{{< blogdown/postref >}}index_files/dt-core/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="{{< blogdown/postref >}}index_files/dt-core/js/jquery.dataTables.min.js"></script>
+<link href="{{< blogdown/postref >}}index_files/crosstalk/css/crosstalk.min.css" rel="stylesheet" />
+<script src="{{< blogdown/postref >}}index_files/crosstalk/js/crosstalk.min.js"></script>
 
 Somehow we are already in another election year, with midterm elections coming up in November.
 These the midterms are special this year because they are the first elections after the 2020 census, with the new house apportionment.
@@ -331,11 +349,226 @@ all(compare_seats$seats == compare_seats$real_seats)
 
 ### Cube root rule
 
+The first alternative we’ll consider is the [cube root rule](https://en.wikipedia.org/wiki/Cube_root_rule).
+This method is similar to the current method of apportionment, in that the Huntington-Hill algorithm is used to assign seats to each state.
+However, rather than the total number of representatives be fixed at 435, the total is determined by taking the cube root of the total population.
+This rule is derived from the [findings of Rein Taagepera](https://www.sciencedirect.com/science/article/abs/pii/0049089X72900841?via%3Dihub), who found that around the world the size of national assemblies tends to be around the cube root of the total population.
+
+In the United States, we have two legislative bodies, the Senate and the House of Representatives.
+The Senate is made up of 100 representatives (2 from each of the 50 states).
+Therefore, when using the cube root rule, the number of seats in the House of Representatives is calculated as the cube root of the total population minus 100.
+When using the cube root rule, rather than 435 seats in the House of Representatives, there would have been 554 following the 2000 census, 575 after the 2010 census, and 591 starting in 2022, following the 2020 census.
+
+``` r
+state_pop %>% 
+  filter(!state_name %in% c("District of Columbia", "Puerto Rico")) %>%
+  add_count(year, wt = population, name = "total_pop") %>% 
+  nest(state_pop = -c(year, total_pop)) %>% 
+  mutate(total_reps = as.integer(total_pop ^ (1 / 3)),
+         house_seats = total_reps - 100L)
+#> # A tibble: 3 × 5
+#>    year total_pop state_pop         total_reps house_seats
+#>   <dbl>     <dbl> <list>                 <int>       <int>
+#> 1  2000 280849847 <tibble [50 × 4]>        654         554
+#> 2  2010 308143815 <tibble [50 × 4]>        675         575
+#> 3  2020 330759736 <tibble [50 × 4]>        691         591
+```
+
+We can then apply the Huntington-Hill algorithm to determine how many seats each state would receive when setting the total number of seats based on the cube root rule.
+
+<details>
+<summary>
+Code to reproduce
+</summary>
+
+``` r
+cube_root_seats <- state_pop %>% 
+  filter(!state_name %in% c("District of Columbia", "Puerto Rico")) %>%
+  add_count(year, wt = population, name = "total_pop") %>% 
+  nest(state_pop = -c(year, total_pop)) %>% 
+  mutate(total_reps = as.integer(total_pop ^ (1 / 3)),
+         house_seats = total_reps - 100L,
+         cube_seats = map2(state_pop, house_seats, hunt_hill)) %>% 
+  select(year, cube_seats) %>% 
+  unnest(cube_seats) %>% 
+  rename(cube_root_seats = seats)
+  
+
+cube_dt <- cube_root_seats %>% 
+  select(state_name, year, cube_root_seats) %>% 
+  pivot_wider(names_from = year, values_from = cube_root_seats) %>% 
+  datatable(rownames = FALSE,
+            colnames = c("State", "2000", "2010", "2020"),
+            options = list(
+              autoWidth = TRUE,
+              columnDefs = list(list(className = "dt-left", targets = 0),
+                                list(width = "40%", targets = 0),
+                                list(width = "20%", targets = 1:3)),
+              pageLength = 10,
+              lengthMenu = c(5, 10, 25, 50)
+            ))
+```
+
+</details>
+
+<br>
+
+<div id="htmlwidget-3" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-3">{"x":{"filter":"none","vertical":false,"data":[["Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"],[9,1,10,5,67,8,7,2,31,16,2,3,24,12,6,5,8,9,3,10,12,20,10,6,11,2,3,4,2,17,4,37,16,1,22,7,7,24,2,8,2,11,41,4,1,14,12,4,11,1],[9,1,12,5,69,9,7,2,35,18,3,3,24,12,6,5,8,8,3,11,12,18,10,6,11,2,3,5,3,16,4,36,18,1,21,7,7,24,2,9,2,12,47,5,1,15,13,3,11,1],[9,1,13,5,71,10,6,2,38,19,3,3,23,12,6,5,8,8,2,11,13,18,10,5,11,2,4,6,3,17,4,36,19,1,21,7,8,23,2,9,2,12,52,6,1,15,14,3,11,1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>State<\/th>\n      <th>2000<\/th>\n      <th>2010<\/th>\n      <th>2020<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"autoWidth":true,"columnDefs":[{"className":"dt-left","targets":0},{"width":"40%","targets":0},{"width":"20%","targets":[1,2,3]},{"className":"dt-right","targets":[1,2,3]}],"pageLength":10,"lengthMenu":[5,10,25,50],"order":[],"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+
 ### Wyoming rule
+
+The second alternative apportionment method is the [Wyoming rule](https://en.wikipedia.org/wiki/Wyoming_Rule).
+Unlike our current apportionment method and the cube root rule, the Wyoming rule does not use the Huntington-Hill algorithm to apportion seats.
+Instead, the size (in terms of population) of each congressional district is based on the population of the smallest state, which has been Wyoming since 1990.
+
+Using this method, the state with the smallest population (Wyoming) gets one seat in the House of Representatives.
+The number of seats for other states depends how many times larger their population is than Wyoming’s.
+If a state has 2x the population, they get 2 seats (really 1.5x larger due to rounding).
+Similarly, if a state has 3x the population, that state would get 3 seats (again, 2.5x with rounding).
+For example, in the 2020 census, Wyoming had a total population of 576,851, and Nevada had a population of 3,104,614.
+Therefore, when using the Wyoming rule, Nevada would get 3,104,614 ÷ 576,851 = 5.382 = 5 seats.
+
+The table below shows the number of seats that would be appropriated to each state with the Wyoming rule.
+
+<details>
+<summary>
+Code to reproduce
+</summary>
+
+``` r
+wyoming_seats <- state_pop %>% 
+  filter(!state_name %in% c("District of Columbia", "Puerto Rico")) %>% 
+  group_by(year) %>% 
+  mutate(wyoming_seats = round(population / min(population), digits = 0),
+         wyoming_seats = as.integer(wyoming_seats)) %>% 
+  ungroup()
+
+wyoming_dt <- wyoming_seats %>% 
+  select(state_name, year, wyoming_seats) %>% 
+  pivot_wider(names_from = year, values_from = wyoming_seats) %>% 
+  datatable(rownames = FALSE,
+            colnames = c("State", "2000", "2010", "2020"),
+            options = list(
+              autoWidth = TRUE,
+              columnDefs = list(list(className = "dt-left", targets = 0),
+                                list(width = "40%", targets = 0),
+                                list(width = "20%", targets = 1:3)),
+              pageLength = 10,
+              lengthMenu = c(5, 10, 25, 50)
+            ))
+```
+
+</details>
+
+<br>
+
+<div id="htmlwidget-4" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-4">{"x":{"filter":"none","vertical":false,"data":[["Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"],[9,1,10,5,69,9,7,2,32,17,2,3,25,12,6,5,8,9,3,11,13,20,10,6,11,2,3,4,3,17,4,38,16,1,23,7,7,25,2,8,2,12,42,5,1,14,12,4,11,1],[8,1,11,5,66,9,6,2,33,17,2,3,23,12,5,5,8,8,2,10,12,18,9,5,11,2,3,5,2,16,4,34,17,1,20,7,7,23,2,8,1,11,45,5,1,14,12,3,10,1],[9,1,12,5,69,10,6,2,37,19,3,3,22,12,6,5,8,8,2,11,12,17,10,5,11,2,3,5,2,16,4,35,18,1,20,7,7,23,2,9,2,12,51,6,1,15,13,3,10,1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>State<\/th>\n      <th>2000<\/th>\n      <th>2010<\/th>\n      <th>2020<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"autoWidth":true,"columnDefs":[{"className":"dt-left","targets":0},{"width":"40%","targets":0},{"width":"20%","targets":[1,2,3]},{"className":"dt-right","targets":[1,2,3]}],"pageLength":10,"lengthMenu":[5,10,25,50],"order":[],"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 
 ## Effects of different apportionments
 
+Congressional apportionment has two major impacts:
+
+1.  The make up of congress, and
+2.  The Electoral College.
+
+It’s hard to know exactly how the make up of congress would be affected by different apportionment rules, as we have no way of knowing where the hypothetical congressional lines would be drawn, and how much [gerrymandering](https://en.wikipedia.org/wiki/Gerrymandering) may or may not take place.
+However, we can examine which states gain or lose power, as measured by the difference in the percentage of the total representatives that come from each state.
+Additionally, we can look at measures of fairness in appropriate, such as the average size of districts and the ratio of sizes of the largest and smallest districts.
+
+The Electoral College is a little more straightforward.
+The number of Electoral College votes each state has is equal to the number of seats in the House of Representatives plus 2 (the number of senators).
+In most cases, all of a state’s electoral votes go to the state-wide winner.
+It’s reasonable to assume that changing the number of representatives would not change the state-wide presidential winner (although it’s possible if down-ballot representative races would have motivated turnout in a particular party).
+Using the assumption that state-wide presidential results were the same, we can explore how the electoral votes allocated under each rule may have affected the outcome of the presidential elections.
+
+Before we get started, we combine the number of seats from each rule that we’ve calculated.
+
+``` r
+state_map <- us_states("2000-12-31") %>% 
+  shift_geometry()
+
+all_seats <- list(state_pop %>% 
+                    filter(!state_name %in% c("District of Columbia",
+                                              "Puerto Rico")) %>% 
+                    select(year, state, state_name, population),
+                  congress_actual %>% 
+                    select(year, state, state_name, real_seats = seats),
+                  cube_root_seats %>% 
+                    select(year, state, state_name, cube_root_seats),
+                  wyoming_seats %>% 
+                    select(year, state, state_name, wyoming_seats)) %>% 
+  reduce(full_join, by = c("year", "state", "state_name")) %>% 
+  mutate(year = as.integer(year))
+
+all_seats
+#> # A tibble: 150 × 7
+#>     year state state_name  population real_seats cube_root_seats wyoming_seats
+#>    <int> <chr> <chr>            <dbl>      <int>           <int>         <int>
+#>  1  2000 AL    Alabama        4447100          7               9             9
+#>  2  2000 AK    Alaska          626932          1               1             1
+#>  3  2000 AZ    Arizona        5130632          8              10            10
+#>  4  2000 AR    Arkansas       2673400          4               5             5
+#>  5  2000 CA    California    33871648         53              67            69
+#>  6  2000 CO    Colorado       4301261          7               8             9
+#>  7  2000 CT    Connecticut    3405565          5               7             7
+#>  8  2000 DE    Delaware        783600          1               2             2
+#>  9  2000 FL    Florida       15982378         25              31            32
+#> 10  2000 GA    Georgia        8186453         13              16            17
+#> # … with 140 more rows
+```
+
 ### 2000 census
+
+<details>
+<summary>
+Code to reproduce
+</summary>
+
+``` r
+# -0.308, 0.363
+state_map %>% 
+  left_join(filter(all_seats, year == 2000),
+            by = c("state_abbr" = "state", "state_name")) %>% 
+  filter(terr_type == "State") %>% 
+  mutate(state_power = real_seats / sum(real_seats, na.rm = TRUE),
+         cr_state_power = cube_root_seats / sum(cube_root_seats, na.rm = TRUE),
+         wy_state_power = wyoming_seats / sum(wyoming_seats, na.rm = TRUE)) %>% 
+  pivot_longer(contains("_state_power"), names_to = "method",
+               values_to = "power") %>% 
+  mutate(pct_change_power = (power - state_power) / power,
+         method = case_when(method == "cr_state_power" ~ "Cube Root Rule",
+                            method == "wy_state_power" ~ "Wyoming Rule")) %>% 
+  ggplot() +
+  facet_grid(cols = vars(method)) +
+  geom_sf(aes(fill = pct_change_power), size = 0.5, color = "#F0F0F0") +
+  scale_fill_viridis_c(option = "F", direction = -1, na.value = "grey95",
+                       guide = guide_colourbar(barwidth = 12, title.position = "top"),
+                       labels = scales::percent_format(),
+                       limits = c(-0.4, 0.4)) +
+  coord_sf(crs = st_crs("ESRI:102003")) +  # Albers
+  labs(title = "Change in relative state House power for 2000 census",
+       subtitle = "House power calculated by dividing each state's total number of representatives\nby the overall number of representatives",
+       fill = "Percent change in relative power",
+       caption = "Plot: @wjakethompson") +
+  theme(panel.grid.major = element_blank(),
+        axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        legend.title = element_text(hjust = 0.5),
+        plot.caption = element_text(face = "plain"),
+        strip.text = element_text(colour = "black")) -> p
+
+
+ggsave(fig_path(".png"), plot = p, width = 9, height = 5, units = "in",
+       dpi = "retina")
+```
+
+</details>
+
+<br>
+
+<img src="{{< blogdown/postref >}}index_files/figure-html/power2000-1.png" width="100%" style="display: block; margin: auto;" />
 
 ### 2010 census
 
@@ -348,19 +581,19 @@ all_seats %>%
   group_by(year, method) %>% 
   mutate(prop_seat = seats / sum(seats),
          people_per_seat = population / seats)
-#> # A tibble: 450 × 9
+#> # A tibble: 450 × 8
 #> # Groups:   year, method [9]
-#>     year geoid state state_name population method seats prop_seat
-#>    <dbl> <chr> <chr> <chr>           <dbl> <chr>  <int>     <dbl>
-#>  1  2000 01    AL    Alabama       4447100 cubic      9   0.0162 
-#>  2  2000 01    AL    Alabama       4447100 wy         9   0.0165 
-#>  3  2000 01    AL    Alabama       4447100 real       7   0.0161 
-#>  4  2000 02    AK    Alaska         626932 cubic      1   0.00180
-#>  5  2000 02    AK    Alaska         626932 wy         1   0.00184
-#>  6  2000 02    AK    Alaska         626932 real       1   0.00230
-#>  7  2000 04    AZ    Arizona       5130632 cubic     10   0.0180 
-#>  8  2000 04    AZ    Arizona       5130632 wy        10   0.0184 
-#>  9  2000 04    AZ    Arizona       5130632 real       8   0.0184 
-#> 10  2000 05    AR    Arkansas      2673400 cubic      5   0.00901
-#> # … with 440 more rows, and 1 more variable: people_per_seat <dbl>
+#>     year state state_name population method    seats prop_seat people_per_seat
+#>    <int> <chr> <chr>           <dbl> <chr>     <int>     <dbl>           <dbl>
+#>  1  2000 AL    Alabama       4447100 real          7   0.0161          635300 
+#>  2  2000 AL    Alabama       4447100 cube_root     9   0.0162          494122.
+#>  3  2000 AL    Alabama       4447100 wyoming       9   0.0158          494122.
+#>  4  2000 AK    Alaska         626932 real          1   0.00230         626932 
+#>  5  2000 AK    Alaska         626932 cube_root     1   0.00181         626932 
+#>  6  2000 AK    Alaska         626932 wyoming       1   0.00176         626932 
+#>  7  2000 AZ    Arizona       5130632 real          8   0.0184          641329 
+#>  8  2000 AZ    Arizona       5130632 cube_root    10   0.0181          513063.
+#>  9  2000 AZ    Arizona       5130632 wyoming      10   0.0176          513063.
+#> 10  2000 AR    Arkansas      2673400 real          4   0.00920         668350 
+#> # … with 440 more rows
 ```

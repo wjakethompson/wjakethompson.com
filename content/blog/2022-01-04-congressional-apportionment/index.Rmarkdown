@@ -22,6 +22,8 @@ library(sf)
 library(tigris)
 library(patchwork)
 library(wjake)
+library(glue)
+library(knitr)
 
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -37,7 +39,7 @@ knitr::opts_chunk$set(
 )
 
 set_theme(base_family = "Source Sans Pro",
-          plot_margin = margin(10, 10, 10, 10))
+          plot_margin = margin(5, 5, 5, 5))
 ```
 
 Somehow we are already in another election year, with midterm elections coming up in November.
@@ -260,6 +262,21 @@ all(compare_seats$seats == compare_seats$real_seats)
 
 ### Cube root rule
 
+```{r echo = FALSE}
+cube_totals <- state_pop %>% 
+  filter(!state_name %in% c("District of Columbia", "Puerto Rico")) %>%
+  add_count(year, wt = population, name = "total_pop") %>% 
+  nest(state_pop = -c(year, total_pop)) %>% 
+  mutate(total_reps = as.integer(total_pop ^ (1 / 3)),
+         house_seats = total_reps - 100L) %>% 
+  mutate(pre = case_when(year == 2000 ~ "following",
+                         year == 2010 ~ "after",
+                         year == 2020 ~ "starting in 2022, following")) %>% 
+  glue_data("{house_seats} {pre} the {year} census") %>% 
+  combine_words()
+```
+
+
 The first alternative we'll consider is the [cube root rule](https://en.wikipedia.org/wiki/Cube_root_rule).
 This method is similar to the current method of apportionment, in that the Huntington-Hill algorithm is used to assign seats to each state.
 However, rather than the total number of representatives be fixed at 435, the total is determined by taking the cube root of the total population.
@@ -268,28 +285,201 @@ This rule is derived from the [findings of Rein Taagepera](https://www.sciencedi
 In the United States, we have two legislative bodies, the Senate and the House of Representatives.
 The Senate is made up of 100 representatives (2 from each of the 50 states).
 Therefore, when using the cube root rule, the number of seats in the House of Representatives is calculated as the cube root of the total population minus 100.
+When using the cube root rule, rather than 435 seats in the House of Representatives, there would have been `r cube_totals`.
 
 ```{r}
 state_pop %>% 
   filter(!state_name %in% c("District of Columbia", "Puerto Rico")) %>%
   add_count(year, wt = population, name = "total_pop") %>% 
   nest(state_pop = -c(year, total_pop)) %>% 
-  mutate(total_reps = total_pop ^ (1 / 3),
-         house_seats = total_reps - 100)
+  mutate(total_reps = as.integer(total_pop ^ (1 / 3)),
+         house_seats = total_reps - 100L)
 ```
 
+We can then apply the Huntington-Hill algorithm to determine how many seats each state would receive when setting the total number of seats based on the cube root rule.
 
+<details><summary>Code to reproduce</summary>
+
+```{r make-cube-dt}
+cube_root_seats <- state_pop %>% 
+  filter(!state_name %in% c("District of Columbia", "Puerto Rico")) %>%
+  add_count(year, wt = population, name = "total_pop") %>% 
+  nest(state_pop = -c(year, total_pop)) %>% 
+  mutate(total_reps = as.integer(total_pop ^ (1 / 3)),
+         house_seats = total_reps - 100L,
+         cube_seats = map2(state_pop, house_seats, hunt_hill)) %>% 
+  select(year, cube_seats) %>% 
+  unnest(cube_seats) %>% 
+  rename(cube_root_seats = seats)
+  
+
+cube_dt <- cube_root_seats %>% 
+  select(state_name, year, cube_root_seats) %>% 
+  pivot_wider(names_from = year, values_from = cube_root_seats) %>% 
+  datatable(rownames = FALSE,
+            colnames = c("State", "2000", "2010", "2020"),
+            options = list(
+              autoWidth = TRUE,
+              columnDefs = list(list(className = "dt-left", targets = 0),
+                                list(width = "40%", targets = 0),
+                                list(width = "20%", targets = 1:3)),
+              pageLength = 10,
+              lengthMenu = c(5, 10, 25, 50)
+            ))
+```
+
+</details><br>
+
+```{r echo = FALSE}
+cube_dt
+```
 
 ### Wyoming rule
 
+```{r echo = FALSE}
+set.seed(1234)
 
+wy_pop <- state_pop %>% 
+  filter(state == "WY", year == 2020) %>% 
+  pull(population)
+
+rand_pop <- state_pop %>% 
+  filter(!state %in% c("WY", "DC", "PR"), year == 2020) %>% 
+  slice_sample(n = 1)
+```
+
+The second alternative apportionment method is the [Wyoming rule](https://en.wikipedia.org/wiki/Wyoming_Rule).
+Unlike our current apportionment method and the cube root rule, the Wyoming rule does not use the Huntington-Hill algorithm to apportion seats.
+Instead, the size (in terms of population) of each congressional district is based on the population of the smallest state, which has been Wyoming since 1990.
+
+Using this method, the state with the smallest population (Wyoming) gets one seat in the House of Representatives.
+The number of seats for other states depends how many times larger their population is than Wyoming's.
+If a state has 2x the population, they get 2 seats (really 1.5x larger due to rounding).
+Similarly, if a state has 3x the population, that state would get 3 seats (again, 2.5x with rounding).
+For example, in the 2020 census, Wyoming had a total population of `r prettyNum(wy_pop, big.mark = ",")`, and `r pull(rand_pop, state_name)` had a population of `r prettyNum(pull(rand_pop, population), big.mark = ",")`.
+Therefore, when using the Wyoming rule, `r pull(rand_pop, state_name)` would get `r prettyNum(pull(rand_pop, population), big.mark = ",")` &div; `r prettyNum(wy_pop, big.mark = ",")` = `r round(pull(rand_pop, population) / wy_pop, digits = 3)` = `r round(pull(rand_pop, population) / wy_pop, digits = 0)` seats.
+
+The table below shows the number of seats that would be appropriated to each state with the Wyoming rule.
+
+<details><summary>Code to reproduce</summary>
+
+```{r make-wyoming-dt}
+wyoming_seats <- state_pop %>% 
+  filter(!state_name %in% c("District of Columbia", "Puerto Rico")) %>% 
+  group_by(year) %>% 
+  mutate(wyoming_seats = round(population / min(population), digits = 0),
+         wyoming_seats = as.integer(wyoming_seats)) %>% 
+  ungroup()
+
+wyoming_dt <- wyoming_seats %>% 
+  select(state_name, year, wyoming_seats) %>% 
+  pivot_wider(names_from = year, values_from = wyoming_seats) %>% 
+  datatable(rownames = FALSE,
+            colnames = c("State", "2000", "2010", "2020"),
+            options = list(
+              autoWidth = TRUE,
+              columnDefs = list(list(className = "dt-left", targets = 0),
+                                list(width = "40%", targets = 0),
+                                list(width = "20%", targets = 1:3)),
+              pageLength = 10,
+              lengthMenu = c(5, 10, 25, 50)
+            ))
+```
+
+</details><br>
+
+```{r echo = FALSE}
+wyoming_dt
+```
 
 ## Effects of different apportionments
 
+Congressional apportionment has two major impacts:
 
+1. The make up of congress, and
+2. The Electoral College.
+
+It's hard to know exactly how the make up of congress would be affected by different apportionment rules, as we have no way of knowing where the hypothetical congressional lines would be drawn, and how much [gerrymandering](https://en.wikipedia.org/wiki/Gerrymandering) may or may not take place.
+However, we can examine which states gain or lose power, as measured by the difference in the percentage of the total representatives that come from each state.
+Additionally, we can look at measures of fairness in appropriate, such as the average size of districts and the ratio of sizes of the largest and smallest districts.
+
+The Electoral College is a little more straightforward.
+The number of Electoral College votes each state has is equal to the number of seats in the House of Representatives plus 2 (the number of senators).
+In most cases, all of a state's electoral votes go to the state-wide winner.
+It's reasonable to assume that changing the number of representatives would not change the state-wide presidential winner (although it's possible if down-ballot representative races would have motivated turnout in a particular party).
+Using the assumption that state-wide presidential results were the same, we can explore how the electoral votes allocated under each rule may have affected the outcome of the presidential elections.
+
+Before we get started, we combine the number of seats from each rule that we've calculated.
+
+```{r}
+state_map <- us_states("2000-12-31") %>% 
+  shift_geometry()
+
+all_seats <- list(state_pop %>% 
+                    filter(!state_name %in% c("District of Columbia",
+                                              "Puerto Rico")) %>% 
+                    select(year, state, state_name, population),
+                  congress_actual %>% 
+                    select(year, state, state_name, real_seats = seats),
+                  cube_root_seats %>% 
+                    select(year, state, state_name, cube_root_seats),
+                  wyoming_seats %>% 
+                    select(year, state, state_name, wyoming_seats)) %>% 
+  reduce(full_join, by = c("year", "state", "state_name")) %>% 
+  mutate(year = as.integer(year))
+
+all_seats
+```
 
 ### 2000 census
 
+<details><summary>Code to reproduce</summary>
+
+```{r power2000, out.width = "100%", fig.asp = NA}
+# -0.308, 0.363
+state_map %>% 
+  left_join(filter(all_seats, year == 2000),
+            by = c("state_abbr" = "state", "state_name")) %>% 
+  filter(terr_type == "State") %>% 
+  mutate(state_power = real_seats / sum(real_seats, na.rm = TRUE),
+         cr_state_power = cube_root_seats / sum(cube_root_seats, na.rm = TRUE),
+         wy_state_power = wyoming_seats / sum(wyoming_seats, na.rm = TRUE)) %>% 
+  pivot_longer(contains("_state_power"), names_to = "method",
+               values_to = "power") %>% 
+  mutate(pct_change_power = (power - state_power) / power,
+         method = case_when(method == "cr_state_power" ~ "Cube Root Rule",
+                            method == "wy_state_power" ~ "Wyoming Rule")) %>% 
+  ggplot() +
+  facet_grid(cols = vars(method)) +
+  geom_sf(aes(fill = pct_change_power), size = 0.5, color = "#F0F0F0") +
+  scale_fill_viridis_c(option = "F", direction = -1, na.value = "grey95",
+                       guide = guide_colourbar(barwidth = 12, title.position = "top"),
+                       labels = scales::percent_format(),
+                       limits = c(-0.4, 0.4)) +
+  coord_sf(crs = st_crs("ESRI:102003")) +  # Albers
+  labs(title = "Change in relative state House power for 2000 census",
+       subtitle = "House power calculated by dividing each state's total number of representatives\nby the overall number of representatives",
+       fill = "Percent change in relative power",
+       caption = "Plot: @wjakethompson") +
+  theme(panel.grid.major = element_blank(),
+        axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        legend.title = element_text(hjust = 0.5),
+        plot.caption = element_text(face = "plain"),
+        strip.text = element_text(colour = "black")) -> p
+
+
+ggsave(fig_path(".png"), plot = p, width = 9, height = 5, units = "in",
+       dpi = "retina")
+```
+
+</details><br>
+
+```{r echo = FALSE, out.width = "100%", fig.asp = NA}
+#| fig.alt: >
+#|    
+include_graphics(fig_chunk("power2000", ".png"))
+```
 
 
 ### 2010 census
@@ -298,24 +488,7 @@ state_pop %>%
 
 ### 2020 census
 
-```{r all-seats, include = FALSE}
-all_seats <- state_pop %>% 
-  filter(!(state_name %in% c("District of Columbia", "Puerto Rico"))) %>% 
-  add_count(year, wt = population, name = "app_pop") %>% 
-  nest(year_dat = -c(year, app_pop)) %>% 
-  mutate(cube_total_seats = as.integer(round(app_pop ^ (1 / 3), 0) - 100),
-         cube_seats = map2(year_dat, cube_total_seats, hunt_hill)) %>% 
-  select(year, cube_seats) %>% 
-  unnest(cube_seats) %>% 
-  rename(cubic_seats = seats) %>% 
-  group_by(year) %>% 
-  mutate(wy_seats = as.integer(population / min(population))) %>% 
-  ungroup() %>% 
-  left_join(congress_actual %>% 
-              select(-census) %>% 
-              rename(real_seats = seats),
-            by = c("year", "state", "state_name"))
-```
+
 
 ```{r seat-summary}
 all_seats %>% 
