@@ -12,8 +12,7 @@ and Assessment Systems (ATLAS)](https://atlas.ku.edu/) at the University of
 Kansas, a part of the [Achievement and Assessment
 Institute](https://aai.ku.edu/). I primarily work on the [Dynamic
 Learning Maps](https://dynamiclearningmaps.org/) alternate assessment and
-other grant-funded projects such as the [Innovations in Science Map,
-Assessment, and Report Technologies (I-SMART)](https://ismart.works) project. I
+other grant-funded projects such as the R package [measr](https://measr.info) for estimating and evaluating diagnostic classification models. I
 completed my PhD in Educational Psychology & Research at the University of
 Kansas with an emphasis in Research, Evaluation, Measurement, and Statistics.
 My research interests are in the areas of R programming and psychometrics,
