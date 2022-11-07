@@ -1,7 +1,7 @@
 ---
 ## Configure sidebar content in narrow column
 author: "W. Jake Thompson"
-role: "Assistant Director for Psychometrics<br>ATLAS, Univ. of Kansas"
+role: "Assistant Director of Psychometrics<br>ATLAS, Univ. of Kansas"
 avatar_shape: circle # circle, square, rounded, leave blank to exclude
 show_social_links: true # specify social accounts in site config
 audio_link_label: "" # leave blank to exclude
