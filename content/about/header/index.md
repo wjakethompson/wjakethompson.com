@@ -7,7 +7,7 @@ headline: |
 ---
 
 <!-- this is a subheadline -->
-I am the Assistant Director for Psychometrics at [Accessible Teaching, Learning,
+I am the Assistant Director of Psychometrics at [Accessible Teaching, Learning,
 and Assessment Systems (ATLAS)](https://atlas.ku.edu/) at the University of
 Kansas, a part of the [Achievement and Assessment
 Institute](https://aai.ku.edu/). I primarily work on the [Dynamic
