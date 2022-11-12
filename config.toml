@@ -90,6 +90,10 @@ enableEmoji = true
       icon_pack = "fab"
       url       = "https://twitter.com/wjakethompson"
   [[params.social]]
+      icon      = "mastodon" # icon name without the 'fa-'
+      icon_pack = "fab"
+      url       = "https://mastodon.social/@wjakethompson"
+  [[params.social]]
       icon      = "linkedin-in" # icon name without the 'fa-'
       icon_pack = "fab"
       url       = "https://www.linkedin.com/in/wjakethompson/"
