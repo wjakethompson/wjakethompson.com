@@ -176,11 +176,6 @@ enableEmoji = true
     url = "/license/"
     weight = 1
   [[menu.footer]]
-    name = "Contact"
-    title = "Contact form"
-    url = "/contact/"
-    weight = 2
-  [[menu.footer]]
     name = "RSS"
     title = "RSS"
     url = "/blog/index.xml"
