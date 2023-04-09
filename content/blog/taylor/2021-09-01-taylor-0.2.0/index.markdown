@@ -187,7 +187,7 @@ In addition, there is an [`album_compare`](https://taylor.wjakethompson.com/refe
 The other feature is a set of ggplot2 color scales that can be used to easily apply the color palettes to plots.
 For an example, let's look at the [palmerpenguins](https://allisonhorst.github.io/palmerpenguins/) data.
 We can use [`scale_color_taylor_d()`](https://taylor.wjakethompson.com/reference/scale_taylor.html) to apply an album color palette to a discrete variable.
-As might be expected there are also [`scale_color_taylor_c()`](NA) and [`scale_color_taylor_b()`](https://taylor.wjakethompson.com/reference/scale_taylor.html) variants for continuous and binned scales as well.
+As might be expected there are also [`scale_color_taylor_c()`](https://taylor.wjakethompson.com/reference/scale_taylor.html) and [`scale_color_taylor_b()`](https://taylor.wjakethompson.com/reference/scale_taylor.html) variants for continuous and binned scales as well.
 
 
 ```r

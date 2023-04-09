@@ -5,7 +5,7 @@ excerpt: |
   A talk for applied practitioners on how to provide robust technical evidence for assessments using diagnostic classification models.
 abstract_short: ""
 event: National Council on Measurement in Education Annual Meeting
-event_url: https://www.ncme.org/meetings/annualmeeting2021virtual
+event_url: https://www.ncme.org/event/annual-meeting/past-meetings/2021-recap
 location: Virtual Conference
 
 # Talk start and end times.
