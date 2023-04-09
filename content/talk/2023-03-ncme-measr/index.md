@@ -28,7 +28,15 @@ links:
 - icon: images
   icon_pack: fas
   name: slides
-  url: ""
+  url: "https://speakerdeck.com/wjakethompson/applied-diagnostic-classification-modeling-with-the-r-package-measr"
+- icon: door-open
+  icon_pack: fas
+  name: website
+  url: https://measr.info
+- icon: github
+  icon_pack: fab
+  name: repository
+  url: https://github.com/wjakethompson/measr
 ---
 
 Diagnostic assessments provide reliable and actionable results with shorter test lengths. However, these methods are not often used in applied research due to in part to limited and inaccessible software. In this presentation we describe a new and free software, measr, that can easily estimate and evaluate diagnostic models.

@@ -27,11 +27,12 @@ links:
 - icon: images
   icon_pack: fas
   name: slides
-  url: ""
-- icon: file-pdf
-  icon_pack: fas
-  name: paper
-  url: https://doi.org/10.35542/osf.io/x2sgj
+  url: "https://speakerdeck.com/wjakethompson/a-simulated-retest-method-for-estimating-classification-reliability"
 ---
 
-Since the publication of the seminal book Diagnostic Measurement: Theory, Methods, and Applications (Rupp, Templin, Henson, 2010), there has been a wave of research on diagnostic measurement. Much of this research, however, has focused on methodological advancements and applications. But recently, there has been increased implementation of large-scale diagnostic assessments systems in K-12 settings, resulting in a need for more research on issues faced in these settings. This session, coordinated by the Diagnostic Measurement SIGMIE, presents a selection of research studies focused on issues faced in the operation of diagnostic assessments systems and their implementation. More specifically, the studies examine critical issues such as the estimation of diagnostic score reliability, validation of diagnostic results, integration of diagnostic assessment into curricula, and scoring models for diagnosing foundational skills. The session will conclude with a question and answer panel to discuss these issues in more depth. 
+Reliability is a crucial piece of evidence for any operational testing program, as laid out in the *Standards for Educational and Psychological Testing*. For diagnostic models, reliability has been conceptualized as the classification accuracy and classification consistency. That is, a mastery or proficiency determination is made for each assessed attribute, and the reliability method focus on the accuracy and consistency of those decisions. This approach can be limiting in an operational setting. Often times, additional results are reported beyond the individual attribute classifications. For example, an overall performance level in a state-wide educational accountability assessment, or a pass/fail determination in a certification or licensure examination. Existing measures of reliability for diagnostic assessments do not easily scale to other results that aggregate the individual attribute classifications. In this paper we describe a method of simulated retests for measuring the reliability of diagnostic assessments. As, the name implies, this method simulates a retest for students using their operational assessment data and the estimated model parameters. The simulated retest is then scored using the standard assessment scoring rules, and the results from the operational assessment and the simulated retests are compared. In this way, we can examine not only the reliability of the attribute classifications, but any result that is reported. In a simulation study, we show that the reliability estimates achieved from the simulated retest method are highly consistent with standard measures of classification accuracy and consistency. We also demonstrate how this method can be used to evaluate the consistency in aggregations of the attribute classifications. Overall, the findings demonstrate the utility of the simulated retest method for assessing the reliability of diagnostic assessments in an operational setting.
+
+This talk summarizes the work in two papers:
+
+* Thompson et al. (2019): Measuring the reliability of diagnostic mastery classifications at multiple levels of reporting [[Preprint](https://doi.org/10.35542/osf.io/5vrk4) / [Article](https://doi.org/10.1080/08957347.2019.1660345)]
+* Thompson et al. (2023): Using simulated retests to estimate the reliability of diagnostic assessment systems [[Preprint](https://doi.org/10.35542/osf.io/x2sgj) / [Article](https://doi.org/10.1111/jedm.12359)]
