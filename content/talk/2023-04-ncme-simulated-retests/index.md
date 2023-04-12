@@ -12,7 +12,7 @@ location: Chicago, IL
 date: "2023-04-13T16:40:00Z"
 date_end: "2023-04-13T18:10:00Z"
 all_day: false
-publishdate: "2023-04-13"
+publishdate: "2023-04-11"
 draft: false
 featured: true
 
