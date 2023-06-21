@@ -23,6 +23,16 @@ categories:
 tags:
 - dcm
 - stan
+
+links:
+- icon: door-open
+  icon_pack: fas
+  name: website
+  url: https://stancon2023.measr.info/
+- icon: github
+  icon_pack: fab
+  name: materials
+  url: https://github.com/measr-workshop/stancon2023
 ---
 
 Diagnostic classification models (DCMs; also known as cognitive diagnostic models) have gained interest in the fields of educational assessment in recent years due to their ability to provide fine-grained actionable feedback while keeping test lengths short. In this workshop, we will cover how to easily estimate and evaluate DCMs with Stan and the R package measr. The measr package includes convenience functions for creating Stan scripts, estimating models, and extract relevant pieces of model output. The workshop will include hands-on examples of defining a DCM, estimating the model, and evaluating the fit (e.g., test- and item-level fit, classification accuracy and consistency, etc.).
