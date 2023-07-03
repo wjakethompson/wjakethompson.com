@@ -1,0 +1,72 @@
+---
+title: "measr 0.3.1"
+subtitle: ""
+excerpt: ""
+date: 2023-06-06
+author: "Jake Thompson"
+draft: false
+weight: 1
+categories:
+  - R
+  - package
+tags:
+  - dcm
+  - Stan
+layout: single-series
+---
+
+```{r setup, include = FALSE, message = FALSE}
+library(tidyverse)
+library(wjake)
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  comment = "#>",
+  echo = TRUE,
+  cache = FALSE,
+  fig.align = "center",
+  fig.width = 8,
+  fig.retina = 2,
+  out.width = "70%"
+)
+
+wjake::set_theme(base_family = "Source Sans Pro", d_scale = "wjake",
+                 plot_margin = margin(10, 10, 10, 10))
+```
+
+I'm stoked to announce the release of [measr](https://measr.info) 0.3.1.
+The goal of measr is to provide applied researchers and psychometricians with a user friendly interface for estimating and evaluating diagnostic classification models (DCMs).
+This update is a minor release to introduce a couple of enhancements to model and prior specifications.
+
+You can install the update verion of measr from CRAN with:
+
+```{r, eval = FALSE}
+install.packages("measr")
+```
+
+This blog post will highlight the two enhancements included in the update.
+For a complete list of changes, check out the [changelog](https://measr.info/news/index.html#measr-031).
+
+```{r}
+library(measr)
+```
+
+## Model Specifications
+
+In this version, support for a new DCM subtype was added.
+The compensatory reparameterized unified model (C-RUM) model can now be specified in `measr_dcm()` with `type = "crum"`.
+The C-RUM is similar to the log-linear cognitive diagnostic model (LCDM), except the C-RUM estimates only item-level intercepts and main effects (i.e., no interactions when multiple attributes are measured by an item).
+Because of this, along with the addition of the C-RUM, the LCDM now has additional flexibility through the new `max_interaction` argument.
+When using `type = "lcdm"`, `max_interaction` specifies the highest level interaction to be estimated.
+For example, setting `max_interaction = 2` would estimate the LCDM with only intercepts, main effects, and two-way interactions.
+If an item measures 3 or more attributes, the 3-way interactions and higher will be excluded.
+Specifying `type = "lcdm"` with `max_interaction = 1` is equivalent to the C-RUM, as 1 indicates that main effects are the highest-level interaction to be estimated.
+
+This version also introduces new options for the structural component of the DCMs.
+Currently two attributes structures are possible, and are defined through the `attribute_structure` argument.
+
+
+## Prior Specifications
+
+
