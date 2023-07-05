@@ -134,7 +134,7 @@ For a complete list of model evaluation options, see `?model_evaluation`.
 
 ## Future Development
 
-We're already in the process of adding features and making improvments for the next version of measr.
+We're already in the process of adding features and making improvements for the next version of measr.
 Some highlights include:
 
 * Adding support for more DCM subtypes
