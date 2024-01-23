@@ -1,9 +1,9 @@
-wjakethompson.com
+Personal website and blog (archived)
 =======================
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/6ed7926a-0417-40c5-aab6-eeb2b24c0bf5/deploy-status)](https://app.netlify.com/sites/wjakethompson/deploys)
-
-This is source code and document text for [wjakethompson.com](https://wjakethompson.com/). Blog posts can be found in the `content/blog/` directory.
+This is source code and document text for the archived version of my personal website, which was built using blogdown and Hugo.
+The website is now built using Quarto.
+The current version of the website can be found at [wjakethompson/wjt-quarto](https://github.com/wjakethompson/wjt-quarto).
 
 Project Requirements
 --------------------
